@@ -77,6 +77,8 @@ export default function Index() {
   const originalCanvasRef = useRef<HTMLCanvasElement>(null);
   const processedCanvasRef = useRef<HTMLCanvasElement>(null);
   const [sliderPos, setSliderPos] = useState(0.5);
+  // Use a ref for dragging state — avoids stale closures in pointermove handler
+  const isDraggingRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [hasRevealAnimated, setHasRevealAnimated] = useState(false);
   const rafRef = useRef<number | null>(null);
@@ -295,7 +297,10 @@ export default function Index() {
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      // Capture the pointer so pointermove keeps firing even if finger
+      // leaves the element bounds — this is the key fix for mobile.
       e.currentTarget.setPointerCapture(e.pointerId);
+      isDraggingRef.current = true;
       setIsDragging(true);
       setSliderPos(getSliderPosition(e.clientX));
     },
@@ -304,15 +309,34 @@ export default function Index() {
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDragging) return;
-      const pos = getSliderPosition(e.clientX);
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => setSliderPos(pos));
+      // Read from ref — never stale, no closure issue
+      if (!isDraggingRef.current) return;
+      // Update position directly without RAF indirection.
+      // React 18 batches state updates in event handlers; no extra renders.
+      setSliderPos(getSliderPosition(e.clientX));
     },
-    [isDragging, getSliderPosition]
+    [getSliderPosition]
   );
 
-  const handlePointerUp = useCallback(() => setIsDragging(false), []);
+  const stopDrag = useCallback(() => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  }, []);
+
+  // Keyboard accessibility
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const step = e.shiftKey ? 0.1 : 0.01;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSliderPos((p) => Math.max(SLIDER_MIN, p - step));
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setSliderPos((p) => Math.min(SLIDER_MAX, p + step));
+      }
+    },
+    []
+  );
 
   const hasImage = !!loadedImage;
   const sliderPercent = `${sliderPos * 100}%`;
@@ -523,8 +547,9 @@ export default function Index() {
                 ].join(" ")}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerLeave={handlePointerUp}
+                onPointerUp={stopDrag}
+                onPointerCancel={stopDrag}
+                onKeyDown={handleKeyDown}
                 tabIndex={0}
                 role="slider"
                 aria-label="Compare human vision and tuna vision"
@@ -549,17 +574,18 @@ export default function Index() {
                   }}
                 />
 
-                {/* Handle */}
+                {/* Handle — pointer-events-none so the container captures all events */}
                 <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-white/80 pointer-events-none"
-                  style={{ left: sliderPercent, transform: "translateX(-50%)" }}
+                  className="absolute top-0 bottom-0 pointer-events-none"
+                  style={{ left: sliderPercent, transform: "translateX(-50%)", width: "2px", background: "rgba(255,255,255,0.8)" }}
                 >
+                  {/* Visible knob */}
                   <div
                     className={[
                       "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                       "w-10 h-10 rounded-full bg-white flex items-center justify-center",
                       "shadow-lg transition-transform duration-150",
-                      isDragging ? "scale-110" : "scale-100",
+                      isDragging ? "scale-125" : "scale-100",
                     ].join(" ")}
                   >
                     <span
@@ -572,6 +598,8 @@ export default function Index() {
                       unfold_more
                     </span>
                   </div>
+                  {/* Invisible 56px touch target centred on the line — per Apple HIG / Material Design */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14" />
                 </div>
 
                 {/* Labels */}

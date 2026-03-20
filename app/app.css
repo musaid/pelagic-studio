@@ -38,6 +38,10 @@ body {
   overflow: hidden;
   width: 100%;
   aspect-ratio: 21/9;
+  /* Critical: prevents browser scroll/pan from stealing the drag on touch */
+  touch-action: none;
+  /* Hint compositor for clip-path animation */
+  will-change: auto;
 }
 
 @media (max-width: 768px) {
