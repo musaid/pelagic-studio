@@ -47,10 +47,9 @@ interface SampleLure {
 }
 
 const SAMPLE_LURES: SampleLure[] = [
-  { id: "blue-silver", name: "Blue/Silver Skirted", src: "/gallery/blue-silver.svg" },
-  { id: "red-orange", name: "Red/Orange Skirt", src: "/gallery/red-orange.svg" },
-  { id: "chrome", name: "Chrome Spoon", src: "/gallery/chrome-spoon.svg" },
-  { id: "multicolor", name: "Multicolor Skirted", src: "/gallery/multicolor.svg" },
+  { id: "lure-green", name: "CH150F — Green Mackerel", src: "/gallery/lure-green.webp" },
+  { id: "lure-blue", name: "CH150F — Blue Mackerel", src: "/gallery/lure-blue.webp" },
+  { id: "lure-silver", name: "CH150F — Blue/Silver", src: "/gallery/lure-silver.webp" },
 ];
 
 const SLIDER_MIN = 0.02;
@@ -479,7 +478,7 @@ export default function Index() {
                     View All
                   </button>
                 </div>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   {SAMPLE_LURES.map((lure) => (
                     <button
                       key={lure.id}
