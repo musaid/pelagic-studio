@@ -5,7 +5,7 @@
 export function rgbToHsl(
   r: number,
   g: number,
-  b: number
+  b: number,
 ): [number, number, number] {
   const rn = r / 255;
   const gn = g / 255;
@@ -38,7 +38,7 @@ export function rgbToHsl(
 export function hslToRgb(
   h: number,
   s: number,
-  l: number
+  l: number,
 ): [number, number, number] {
   if (s === 0) {
     const v = Math.round(l * 255);
@@ -102,9 +102,9 @@ export function hueToWavelength(hue: number): number {
  * Classify a wavelength into a color category name.
  */
 export function wavelengthToCategory(
-  wavelength: number
-): "blueViolet" | "green" | "redOrange" | "neutral" {
-  if (wavelength >= 380 && wavelength < 500) return "blueViolet";
-  if (wavelength >= 500 && wavelength < 560) return "green";
-  return "redOrange";
+  wavelength: number,
+): 'blueViolet' | 'green' | 'redOrange' | 'neutral' {
+  if (wavelength >= 380 && wavelength < 500) return 'blueViolet';
+  if (wavelength >= 500 && wavelength < 560) return 'green';
+  return 'redOrange';
 }

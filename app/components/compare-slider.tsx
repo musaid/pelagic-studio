@@ -4,8 +4,8 @@ import {
   useEffect,
   useCallback,
   useLayoutEffect,
-} from "react";
-import { drawImageDataToCanvas } from "~/lib/utils/canvas";
+} from 'react';
+import { drawImageDataToCanvas } from '~/lib/utils/canvas';
 
 interface CompareSliderProps {
   originalImageData: ImageData | null;
@@ -97,16 +97,13 @@ export function CompareSlider({
     return () => clearTimeout(timer);
   }, []);
 
-  const getPositionFromEvent = useCallback(
-    (clientX: number): number => {
-      const container = containerRef.current;
-      if (!container) return 0.5;
-      const rect = container.getBoundingClientRect();
-      const raw = (clientX - rect.left) / rect.width;
-      return Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, raw));
-    },
-    []
-  );
+  const getPositionFromEvent = useCallback((clientX: number): number => {
+    const container = containerRef.current;
+    if (!container) return 0.5;
+    const rect = container.getBoundingClientRect();
+    const raw = (clientX - rect.left) / rect.width;
+    return Math.max(SLIDER_MIN, Math.min(SLIDER_MAX, raw));
+  }, []);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -116,7 +113,7 @@ export function CompareSlider({
       const pos = getPositionFromEvent(e.clientX);
       setSliderPos(pos);
     },
-    [getPositionFromEvent, showLabels]
+    [getPositionFromEvent, showLabels],
   );
 
   const handlePointerMove = useCallback(
@@ -129,7 +126,7 @@ export function CompareSlider({
         setSliderPos(pos);
       });
     },
-    [isDragging, getPositionFromEvent, showLabels]
+    [isDragging, getPositionFromEvent, showLabels],
   );
 
   const handlePointerUp = useCallback(() => {
@@ -139,17 +136,17 @@ export function CompareSlider({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const step = e.shiftKey ? 0.1 : 0.01;
-      if (e.key === "ArrowLeft") {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault();
         setSliderPos((p) => Math.max(SLIDER_MIN, p - step));
         showLabels();
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         setSliderPos((p) => Math.min(SLIDER_MAX, p + step));
         showLabels();
       }
     },
-    [showLabels]
+    [showLabels],
   );
 
   const handleFocus = useCallback(() => {
@@ -164,11 +161,11 @@ export function CompareSlider({
     <div
       ref={containerRef}
       className={[
-        "compare-container relative w-full max-w-3xl mx-auto rounded-xl overflow-hidden",
-        "select-none cursor-col-resize",
-        isDragging ? "no-select" : "",
-      ].join(" ")}
-      style={{ aspectRatio: `${aspectRatio}`, maxHeight: "70vh" }}
+        'compare-container relative mx-auto w-full max-w-3xl overflow-hidden rounded-xl',
+        'cursor-col-resize select-none',
+        isDragging ? 'no-select' : '',
+      ].join(' ')}
+      style={{ aspectRatio: `${aspectRatio}`, maxHeight: '70vh' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -185,41 +182,41 @@ export function CompareSlider({
       {/* Bottom canvas: original (human vision) — always full width */}
       <canvas
         ref={originalCanvasRef}
-        className="absolute inset-0 w-full h-full object-contain"
-        style={{ imageRendering: "auto" }}
+        className="absolute inset-0 h-full w-full object-contain"
+        style={{ imageRendering: 'auto' }}
       />
 
       {/* Top canvas: processed (tuna vision) — clipped to right of slider */}
       <canvas
         ref={processedCanvasRef}
-        className="absolute inset-0 w-full h-full object-contain"
+        className="absolute inset-0 h-full w-full object-contain"
         style={{
           clipPath: `inset(0 0 0 ${sliderPercent})`,
-          willChange: "clip-path",
-          imageRendering: "auto",
+          willChange: 'clip-path',
+          imageRendering: 'auto',
         }}
       />
 
       {/* Divider line */}
       <div
-        className="absolute top-0 bottom-0 w-0.5 bg-white/80 pointer-events-none"
-        style={{ left: sliderPercent, transform: "translateX(-50%)" }}
+        className="pointer-events-none absolute top-0 bottom-0 w-0.5 bg-white/80"
+        style={{ left: sliderPercent, transform: 'translateX(-50%)' }}
       >
         {/* Grab handle */}
         <div
           className={[
-            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-            "w-10 h-10 rounded-full bg-white flex items-center justify-center",
-            "shadow-lg transition-transform duration-150",
+            'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+            'flex h-10 w-10 items-center justify-center rounded-full bg-white',
+            'shadow-lg transition-transform duration-150',
             isDragging
-              ? "scale-110 ring-4 ring-blue-400/60 shadow-blue-400/40 shadow-xl"
-              : "scale-100 ring-2 ring-white/40",
-          ].join(" ")}
+              ? 'scale-110 shadow-xl ring-4 shadow-blue-400/40 ring-blue-400/60'
+              : 'scale-100 ring-2 ring-white/40',
+          ].join(' ')}
         >
           <svg
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="w-5 h-5 text-slate-700"
+            className="h-5 w-5 text-slate-700"
           >
             <path
               fillRule="evenodd"
@@ -233,29 +230,29 @@ export function CompareSlider({
       {/* Labels */}
       <div
         className={[
-          "absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium",
-          "bg-black/60 backdrop-blur-sm text-white border border-white/10",
-          "transition-opacity duration-500 pointer-events-none",
-          labelsVisible ? "opacity-100" : "opacity-0",
-        ].join(" ")}
+          'absolute top-3 left-3 rounded-full px-2.5 py-1 text-xs font-medium',
+          'border border-white/10 bg-black/60 text-white backdrop-blur-sm',
+          'pointer-events-none transition-opacity duration-500',
+          labelsVisible ? 'opacity-100' : 'opacity-0',
+        ].join(' ')}
       >
         Human Vision
       </div>
       <div
         className={[
-          "absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-medium",
-          "bg-black/60 backdrop-blur-sm text-blue-300 border border-blue-500/30",
-          "transition-opacity duration-500 pointer-events-none",
-          labelsVisible ? "opacity-100" : "opacity-0",
-        ].join(" ")}
+          'absolute top-3 right-3 rounded-full px-2.5 py-1 text-xs font-medium',
+          'border border-blue-500/30 bg-black/60 text-blue-300 backdrop-blur-sm',
+          'pointer-events-none transition-opacity duration-500',
+          labelsVisible ? 'opacity-100' : 'opacity-0',
+        ].join(' ')}
       >
         Tuna Vision
       </div>
 
       {/* Processing activity indicator */}
       {isProcessing && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-sm border border-blue-500/30">
-          <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-blue-500/30 bg-black/70 px-3 py-1.5 backdrop-blur-sm">
+          <div className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
           <span className="text-xs text-blue-300">Processing...</span>
         </div>
       )}

@@ -4,7 +4,7 @@
 
 const MAX_DIMENSION = 1200;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export interface LoadedImage {
   imageData: ImageData;
@@ -18,19 +18,19 @@ export interface LoadedImage {
 export class ImageLoadError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "ImageLoadError";
+    this.name = 'ImageLoadError';
   }
 }
 
 export function validateImageFile(file: File): void {
   if (file.size > MAX_FILE_SIZE_BYTES) {
     throw new ImageLoadError(
-      `File too large. Maximum size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB.`
+      `File too large. Maximum size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB.`,
     );
   }
   if (!ACCEPTED_TYPES.includes(file.type)) {
     throw new ImageLoadError(
-      "Unsupported format. Please use JPEG, PNG, or WebP."
+      'Unsupported format. Please use JPEG, PNG, or WebP.',
     );
   }
 }
@@ -57,7 +57,7 @@ export function loadImageFromFile(file: File): Promise<LoadedImage> {
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new ImageLoadError("Failed to load image."));
+      reject(new ImageLoadError('Failed to load image.'));
     };
 
     img.src = url;
@@ -70,11 +70,11 @@ export function loadImageFromFile(file: File): Promise<LoadedImage> {
 export function loadImageFromUrl(url: string): Promise<LoadedImage> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "anonymous";
+    img.crossOrigin = 'anonymous';
 
     img.onload = () => {
       try {
-        const fileName = url.split("/").pop() ?? "sample";
+        const fileName = url.split('/').pop() ?? 'sample';
         const result = imageElementToImageData(img, fileName);
         resolve(result);
       } catch (err) {
@@ -83,7 +83,7 @@ export function loadImageFromUrl(url: string): Promise<LoadedImage> {
     };
 
     img.onerror = () => {
-      reject(new ImageLoadError("Failed to load sample image."));
+      reject(new ImageLoadError('Failed to load sample image.'));
     };
 
     img.src = url;
@@ -92,7 +92,7 @@ export function loadImageFromUrl(url: string): Promise<LoadedImage> {
 
 function imageElementToImageData(
   img: HTMLImageElement,
-  fileName: string
+  fileName: string,
 ): LoadedImage {
   const originalWidth = img.naturalWidth;
   const originalHeight = img.naturalHeight;
@@ -111,12 +111,12 @@ function imageElementToImageData(
     }
   }
 
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new ImageLoadError("Canvas 2D context not available.");
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new ImageLoadError('Canvas 2D context not available.');
 
   ctx.drawImage(img, 0, 0, width, height);
   const imageData = ctx.getImageData(0, 0, width, height);
@@ -127,15 +127,13 @@ function imageElementToImageData(
 /**
  * Extract image from a ClipboardEvent paste.
  */
-export function getImageFromClipboard(
-  event: ClipboardEvent
-): File | null {
+export function getImageFromClipboard(event: ClipboardEvent): File | null {
   const items = event.clipboardData?.items;
   if (!items) return null;
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    if (item.type.startsWith("image/")) {
+    if (item.type.startsWith('image/')) {
       const file = item.getAsFile();
       if (file) return file;
     }

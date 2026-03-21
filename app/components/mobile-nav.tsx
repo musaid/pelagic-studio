@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from 'react-router';
 
 interface NavItem {
   label: string;
@@ -7,10 +7,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Analyzer", to: "/", icon: "biotech" },
-  { label: "Depth Log", to: "/analysis", icon: "layers" },
-  { label: "Species", to: null, icon: "visibility" },
-  { label: "Archive", to: "/archive", icon: "database" },
+  { label: 'Analyzer', to: '/', icon: 'biotech' },
+  { label: 'Depth Log', to: '/analysis', icon: 'layers' },
+  { label: 'Species', to: null, icon: 'visibility' },
+  { label: 'Archive', to: '/archive', icon: 'database' },
 ];
 
 export function MobileNav() {
@@ -18,19 +18,23 @@ export function MobileNav() {
 
   const isActive = (to: string | null) => {
     if (!to) return false;
-    return to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+    return to === '/'
+      ? location.pathname === '/'
+      : location.pathname.startsWith(to);
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 bg-black border-t border-zinc-900 flex items-stretch">
+    <nav className="fixed right-0 bottom-0 left-0 z-50 flex h-16 items-stretch border-t border-zinc-900 bg-black md:hidden">
       {NAV_ITEMS.map((item) => {
         const active = isActive(item.to);
         const content = (
           <span
             className={[
-              "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors duration-150",
-              active ? "text-white border-t-2 border-white -mt-px" : "text-zinc-600",
-            ].join(" ")}
+              'flex h-full flex-1 flex-col items-center justify-center gap-1 transition-colors duration-150',
+              active
+                ? '-mt-px border-t-2 border-white text-white'
+                : 'text-zinc-600',
+            ].join(' ')}
           >
             <span
               className="material-symbols-outlined text-[22px] leading-none"
@@ -43,7 +47,7 @@ export function MobileNav() {
               {item.icon}
             </span>
             <span
-              className="text-[9px] uppercase tracking-tighter leading-none"
+              className="text-[9px] leading-none tracking-tighter uppercase"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               {item.label}
@@ -53,14 +57,18 @@ export function MobileNav() {
 
         if (!item.to) {
           return (
-            <button key={item.label} className="flex-1 h-full" aria-label={item.label}>
+            <button
+              key={item.label}
+              className="h-full flex-1"
+              aria-label={item.label}
+            >
               {content}
             </button>
           );
         }
 
         return (
-          <Link key={item.label} to={item.to} className="flex-1 h-full flex">
+          <Link key={item.label} to={item.to} className="flex h-full flex-1">
             {content}
           </Link>
         );

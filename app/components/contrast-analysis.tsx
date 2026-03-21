@@ -1,5 +1,5 @@
-import type { ContrastStats } from "~/lib/vision/types";
-import type { SpeciesProfile } from "~/lib/vision/types";
+import type { ContrastStats } from '~/lib/vision/types';
+import type { SpeciesProfile } from '~/lib/vision/types';
 
 interface ContrastAnalysisProps {
   stats: ContrastStats;
@@ -9,7 +9,7 @@ interface ContrastAnalysisProps {
 
 function BarFill({ percent, color }: { percent: number; color: string }) {
   return (
-    <div className="flex-1 h-1.5 bg-blue-950 rounded-full overflow-hidden">
+    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-blue-950">
       <div
         className={`h-full rounded-full transition-all duration-500 ${color}`}
         style={{ width: `${percent}%` }}
@@ -21,13 +21,13 @@ function BarFill({ percent, color }: { percent: number; color: string }) {
 function ScoreBar({ score }: { score: number }) {
   const color =
     score >= 70
-      ? "bg-emerald-500"
+      ? 'bg-emerald-500'
       : score >= 40
-      ? "bg-yellow-500"
-      : "bg-red-500";
+        ? 'bg-yellow-500'
+        : 'bg-red-500';
 
   return (
-    <div className="w-full h-3 bg-blue-950 rounded-full overflow-hidden">
+    <div className="h-3 w-full overflow-hidden rounded-full bg-blue-950">
       <div
         className={`h-full rounded-full transition-all duration-700 ${color}`}
         style={{ width: `${score}%` }}
@@ -41,58 +41,57 @@ export function ContrastAnalysis({
   species,
   depth,
 }: ContrastAnalysisProps) {
-  const { visibilityScore, brightnessRetention, colorCategories, recommendations } =
-    stats;
+  const { visibilityScore, colorCategories, recommendations } = stats;
 
   const positiveRecs = recommendations.filter(
     (r) =>
-      r.includes("Strong") ||
-      r.includes("preserved") ||
-      r.includes("visible") ||
-      r.includes("High visibility") ||
-      r.includes("Metallic") ||
-      r.includes("partially")
+      r.includes('Strong') ||
+      r.includes('preserved') ||
+      r.includes('visible') ||
+      r.includes('High visibility') ||
+      r.includes('Metallic') ||
+      r.includes('partially'),
   );
 
   const negativeRecs = recommendations.filter(
     (r) =>
-      r.includes("invisible") ||
-      r.includes("lost") ||
-      r.includes("appears black") ||
-      r.includes("Heavy") ||
-      r.includes("diminishes") ||
-      r.includes("Low overall") ||
-      r.includes("only blue") ||
-      r.includes("silhouette")
+      r.includes('invisible') ||
+      r.includes('lost') ||
+      r.includes('appears black') ||
+      r.includes('Heavy') ||
+      r.includes('diminishes') ||
+      r.includes('Low overall') ||
+      r.includes('only blue') ||
+      r.includes('silhouette'),
   );
 
   const scoreLabel =
     visibilityScore >= 70
-      ? "Excellent"
+      ? 'Excellent'
       : visibilityScore >= 50
-      ? "Good"
-      : visibilityScore >= 30
-      ? "Fair"
-      : "Poor";
+        ? 'Good'
+        : visibilityScore >= 30
+          ? 'Fair'
+          : 'Poor';
 
   const scoreColor =
     visibilityScore >= 70
-      ? "text-emerald-400"
+      ? 'text-emerald-400'
       : visibilityScore >= 50
-      ? "text-yellow-400"
-      : visibilityScore >= 30
-      ? "text-orange-400"
-      : "text-red-400";
+        ? 'text-yellow-400'
+        : visibilityScore >= 30
+          ? 'text-orange-400'
+          : 'text-red-400';
 
   return (
-    <div className="bg-[#0d1426] border border-blue-900/50 rounded-xl p-5 space-y-5">
+    <div className="space-y-5 rounded-xl border border-blue-900/50 bg-[#0d1426] p-5">
       {/* Header */}
       <div>
-        <p className="text-xs text-slate-500 uppercase tracking-widest font-medium mb-1">
+        <p className="mb-1 text-xs font-medium tracking-widest text-slate-500 uppercase">
           Lure Analysis
         </p>
         <h3 className="text-sm text-slate-300">
-          {species.name} at {depth === 0 ? "surface" : `${depth}m depth`}
+          {species.name} at {depth === 0 ? 'surface' : `${depth}m depth`}
         </h3>
       </div>
 
@@ -100,10 +99,12 @@ export function ContrastAnalysis({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-sm text-slate-400">Visibility Score</span>
-          <span className={`text-lg font-bold font-mono ${scoreColor}`}>
+          <span className={`font-mono text-lg font-bold ${scoreColor}`}>
             {visibilityScore}
-            <span className="text-xs font-normal text-slate-500 ml-0.5">/100</span>
-            <span className={`text-xs font-semibold ml-2 ${scoreColor}`}>
+            <span className="ml-0.5 text-xs font-normal text-slate-500">
+              /100
+            </span>
+            <span className={`ml-2 text-xs font-semibold ${scoreColor}`}>
               {scoreLabel}
             </span>
           </span>
@@ -116,13 +117,13 @@ export function ContrastAnalysis({
         <div className="space-y-2">
           {positiveRecs.map((rec) => (
             <div key={rec} className="flex items-start gap-2.5 text-sm">
-              <span className="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
+              <span className="mt-0.5 flex-shrink-0 text-emerald-400">✓</span>
               <span className="text-slate-300">{rec}</span>
             </div>
           ))}
           {negativeRecs.map((rec) => (
             <div key={rec} className="flex items-start gap-2.5 text-sm">
-              <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
+              <span className="mt-0.5 flex-shrink-0 text-red-400">✗</span>
               <span className="text-slate-300">{rec}</span>
             </div>
           ))}
@@ -131,17 +132,17 @@ export function ContrastAnalysis({
 
       {/* Color breakdown */}
       <div className="space-y-2.5">
-        <p className="text-xs text-slate-500 uppercase tracking-widest font-medium">
+        <p className="text-xs font-medium tracking-widest text-slate-500 uppercase">
           Color Breakdown
         </p>
 
         {colorCategories.blueViolet > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-32 shrink-0">
+            <span className="w-32 shrink-0 text-xs text-slate-400">
               Blue/Violet
             </span>
             <BarFill percent={colorCategories.blueViolet} color="bg-blue-500" />
-            <span className="text-xs text-slate-500 w-9 text-right font-mono">
+            <span className="w-9 text-right font-mono text-xs text-slate-500">
               {colorCategories.blueViolet}%
             </span>
           </div>
@@ -149,11 +150,9 @@ export function ContrastAnalysis({
 
         {colorCategories.green > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-32 shrink-0">
-              Green
-            </span>
+            <span className="w-32 shrink-0 text-xs text-slate-400">Green</span>
             <BarFill percent={colorCategories.green} color="bg-emerald-500" />
-            <span className="text-xs text-slate-500 w-9 text-right font-mono">
+            <span className="w-9 text-right font-mono text-xs text-slate-500">
               {colorCategories.green}%
             </span>
           </div>
@@ -161,11 +160,11 @@ export function ContrastAnalysis({
 
         {colorCategories.redOrange > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-32 shrink-0">
+            <span className="w-32 shrink-0 text-xs text-slate-400">
               Red/Orange
             </span>
             <BarFill percent={colorCategories.redOrange} color="bg-red-500" />
-            <span className="text-xs text-slate-500 w-9 text-right font-mono">
+            <span className="w-9 text-right font-mono text-xs text-slate-500">
               {colorCategories.redOrange}%
             </span>
           </div>
@@ -173,14 +172,11 @@ export function ContrastAnalysis({
 
         {colorCategories.metallic > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-32 shrink-0">
+            <span className="w-32 shrink-0 text-xs text-slate-400">
               Metallic/Chrome
             </span>
-            <BarFill
-              percent={colorCategories.metallic}
-              color="bg-slate-300"
-            />
-            <span className="text-xs text-slate-500 w-9 text-right font-mono">
+            <BarFill percent={colorCategories.metallic} color="bg-slate-300" />
+            <span className="w-9 text-right font-mono text-xs text-slate-500">
               {colorCategories.metallic}%
             </span>
           </div>
@@ -188,11 +184,11 @@ export function ContrastAnalysis({
 
         {colorCategories.neutral > 0 && (
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 w-32 shrink-0">
+            <span className="w-32 shrink-0 text-xs text-slate-400">
               Neutral/White
             </span>
             <BarFill percent={colorCategories.neutral} color="bg-slate-500" />
-            <span className="text-xs text-slate-500 w-9 text-right font-mono">
+            <span className="w-9 text-right font-mono text-xs text-slate-500">
               {colorCategories.neutral}%
             </span>
           </div>
@@ -200,14 +196,13 @@ export function ContrastAnalysis({
       </div>
 
       {/* Fluorescent note */}
-      <p className="text-xs text-slate-600 border-t border-blue-900/40 pt-4 leading-relaxed">
-        Note: Fluorescent materials cannot be detected from photography. UV-reactive
-        pigments may appear significantly brighter to pelagic fish than shown here.
+      <p className="border-t border-blue-900/40 pt-4 text-xs leading-relaxed text-slate-600">
+        Note: Fluorescent materials cannot be detected from photography.
+        UV-reactive pigments may appear significantly brighter to pelagic fish
+        than shown here.
       </p>
 
-      <p className="text-xs text-slate-700">
-        {species.citation}
-      </p>
+      <p className="text-xs text-slate-700">{species.citation}</p>
     </div>
   );
 }

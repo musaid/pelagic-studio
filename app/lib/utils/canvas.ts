@@ -7,9 +7,9 @@
  */
 export function drawImageDataToCanvas(
   canvas: HTMLCanvasElement,
-  imageData: ImageData
+  imageData: ImageData,
 ): void {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) return;
   ctx.putImageData(imageData, 0, 0);
 }
@@ -19,11 +19,11 @@ export function drawImageDataToCanvas(
  */
 export function createOffscreenCanvas(
   width: number,
-  height: number
+  height: number,
 ): { canvas: OffscreenCanvas; ctx: OffscreenCanvasRenderingContext2D } | null {
-  if (typeof OffscreenCanvas === "undefined") return null;
+  if (typeof OffscreenCanvas === 'undefined') return null;
   const canvas = new OffscreenCanvas(width, height);
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) return null;
   return { canvas, ctx };
 }
@@ -32,9 +32,9 @@ export function createOffscreenCanvas(
  * Get the ImageData from a canvas element.
  */
 export function getCanvasImageData(
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
 ): ImageData | null {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) return null;
   return ctx.getImageData(0, 0, canvas.width, canvas.height);
 }

@@ -1,4 +1,4 @@
-import type { WavelengthAttenuation } from "./types";
+import type { WavelengthAttenuation } from './types';
 
 /**
  * Diffuse attenuation coefficients Kd (per meter) for Jerlov Type I (clear open ocean) water.
@@ -6,14 +6,14 @@ import type { WavelengthAttenuation } from "./types";
  * I(d) = I(0) * exp(-Kd * d)
  */
 export const jerlovTypeI: WavelengthAttenuation[] = [
-  { wavelengthRange: [380, 420], attenuationCoeff: 0.040 }, // UV-Violet: moderate
+  { wavelengthRange: [380, 420], attenuationCoeff: 0.04 }, // UV-Violet: moderate
   { wavelengthRange: [420, 460], attenuationCoeff: 0.025 }, // Violet-Blue: low (most penetrating)
-  { wavelengthRange: [460, 500], attenuationCoeff: 0.020 }, // Blue: lowest attenuation
-  { wavelengthRange: [500, 540], attenuationCoeff: 0.030 }, // Blue-Green: low
+  { wavelengthRange: [460, 500], attenuationCoeff: 0.02 }, // Blue: lowest attenuation
+  { wavelengthRange: [500, 540], attenuationCoeff: 0.03 }, // Blue-Green: low
   { wavelengthRange: [540, 580], attenuationCoeff: 0.065 }, // Green-Yellow: moderate
-  { wavelengthRange: [580, 620], attenuationCoeff: 0.130 }, // Yellow-Orange: high
-  { wavelengthRange: [620, 660], attenuationCoeff: 0.290 }, // Orange-Red: very high
-  { wavelengthRange: [660, 700], attenuationCoeff: 0.430 }, // Red: extreme
+  { wavelengthRange: [580, 620], attenuationCoeff: 0.13 }, // Yellow-Orange: high
+  { wavelengthRange: [620, 660], attenuationCoeff: 0.29 }, // Orange-Red: very high
+  { wavelengthRange: [660, 700], attenuationCoeff: 0.43 }, // Red: extreme
 ];
 
 /**

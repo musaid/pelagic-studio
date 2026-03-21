@@ -1,17 +1,22 @@
-import { useRef, useState, useCallback } from "react";
-import type { MetaFunction } from "react-router";
-import { useNavigate } from "react-router";
-import { TopAppBar } from "~/components/top-app-bar";
-import { MobileNav } from "~/components/mobile-nav";
-import { Footer } from "~/components/footer";
-import { loadImageFromFile, getImageFromClipboard, loadImageFromUrl, ImageLoadError } from "~/lib/utils/image";
-import type { LoadedImage } from "~/lib/utils/image";
+import { useRef, useState, useCallback } from 'react';
+import type { MetaFunction } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import { TopAppBar } from '~/components/top-app-bar';
+import { MobileNav } from '~/components/mobile-nav';
+import { Footer } from '~/components/footer';
+import {
+  loadImageFromFile,
+  getImageFromClipboard,
+  loadImageFromUrl,
+  ImageLoadError,
+} from '~/lib/utils/image';
+import type { LoadedImage } from '~/lib/utils/image';
 
 export const meta: MetaFunction = () => [
-  { title: "Archive — Pelagic Studio" },
+  { title: 'Archive — Pelagic Studio' },
   {
-    name: "description",
-    content: "Sample lure archive and analysis history for Pelagic Studio.",
+    name: 'description',
+    content: 'Sample lure archive and analysis history for Pelagic Studio.',
   },
 ];
 
@@ -22,10 +27,22 @@ interface SampleLure {
 }
 
 const SAMPLE_LURES: SampleLure[] = [
-  { id: "blue-silver", name: "Blue/Silver Skirted", src: "/gallery/blue-silver.svg" },
-  { id: "red-orange", name: "Red/Orange Skirt", src: "/gallery/red-orange.svg" },
-  { id: "chrome", name: "Chrome Spoon", src: "/gallery/chrome-spoon.svg" },
-  { id: "multicolor", name: "Multicolor Skirted", src: "/gallery/multicolor.svg" },
+  {
+    id: 'blue-silver',
+    name: 'Blue/Silver Skirted',
+    src: '/gallery/blue-silver.svg',
+  },
+  {
+    id: 'red-orange',
+    name: 'Red/Orange Skirt',
+    src: '/gallery/red-orange.svg',
+  },
+  { id: 'chrome', name: 'Chrome Spoon', src: '/gallery/chrome-spoon.svg' },
+  {
+    id: 'multicolor',
+    name: 'Multicolor Skirted',
+    src: '/gallery/multicolor.svg',
+  },
 ];
 
 // Module-level store so home page can pick it up after navigation
@@ -48,9 +65,9 @@ export default function Archive() {
   const handleImageLoaded = useCallback(
     (_image: LoadedImage) => {
       // Navigate to home; home page will re-process via its own state
-      navigate("/");
+      navigate('/');
     },
-    [navigate]
+    [navigate],
   );
 
   const handleFile = useCallback(
@@ -64,13 +81,13 @@ export default function Archive() {
         if (err instanceof ImageLoadError) {
           setUploadError(err.message);
         } else {
-          setUploadError("Failed to load image.");
+          setUploadError('Failed to load image.');
         }
       } finally {
         setIsUploading(false);
       }
     },
-    [handleImageLoaded]
+    [handleImageLoaded],
   );
 
   const handleDrop = useCallback(
@@ -80,7 +97,7 @@ export default function Archive() {
       const file = e.dataTransfer.files[0];
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -99,9 +116,9 @@ export default function Archive() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) handleFile(file);
-      e.target.value = "";
+      e.target.value = '';
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handlePaste = useCallback(
@@ -109,7 +126,7 @@ export default function Archive() {
       const file = getImageFromClipboard(e.nativeEvent);
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleSampleSelect = useCallback(
@@ -117,41 +134,40 @@ export default function Archive() {
       setLoadingSampleId(lure.id);
       try {
         await loadImageFromUrl(lure.src);
-        navigate("/");
+        navigate('/');
       } catch (_err) {
         // silently ignore
       } finally {
         setLoadingSampleId(null);
       }
     },
-    [navigate]
+    [navigate],
   );
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-zinc-50">
+    <div className="flex min-h-screen flex-col bg-black text-zinc-50">
       <TopAppBar />
 
       <main className="flex-1 pt-16 pb-20 md:pb-0">
-        <div className="max-w-5xl mx-auto w-full px-6">
-
+        <div className="mx-auto w-full max-w-5xl px-6">
           {/* Page header */}
-          <div className="mt-8 border-b border-zinc-800 pb-4 flex justify-between items-end">
+          <div className="mt-8 flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <p
-                className="text-[10px] uppercase tracking-widest text-blue-400 mb-1"
+                className="mb-1 text-[10px] tracking-widest text-blue-400 uppercase"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 Catalog
               </p>
               <h1
-                className="text-2xl font-bold text-white uppercase tracking-tight"
+                className="text-2xl font-bold tracking-tight text-white uppercase"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Archive
               </h1>
             </div>
             <span
-              className="text-[10px] text-zinc-500 pb-1"
+              className="pb-1 text-[10px] text-zinc-500"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               v3.1-beta / system_stable
@@ -167,25 +183,31 @@ export default function Archive() {
               onDragLeave={handleDragLeave}
               onPaste={handlePaste}
               onClick={() => fileInputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  fileInputRef.current?.click();
+                }
+              }}
               tabIndex={0}
               role="button"
               aria-label="Upload a lure image"
               className={[
-                "relative min-h-[220px]",
-                "border border-dashed rounded-lg",
-                "flex flex-col items-center justify-center cursor-pointer",
-                "transition-all duration-200 outline-none",
-                "focus-visible:ring-2 focus-visible:ring-blue-500",
+                'relative min-h-[220px]',
+                'rounded-lg border border-dashed',
+                'flex cursor-pointer flex-col items-center justify-center',
+                'transition-all duration-200 outline-none',
+                'focus-visible:ring-2 focus-visible:ring-blue-500',
                 isDragOver
-                  ? "border-white upload-zone-active"
-                  : "border-zinc-700 hover:border-white",
-                isUploading ? "pointer-events-none opacity-60" : "",
-              ].join(" ")}
+                  ? 'upload-zone-active border-white'
+                  : 'border-zinc-700 hover:border-white',
+                isUploading ? 'pointer-events-none opacity-60' : '',
+              ].join(' ')}
               style={{
                 backgroundImage: isDragOver
                   ? undefined
-                  : "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
+                  : 'radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
               }}
             >
               <input
@@ -198,26 +220,30 @@ export default function Archive() {
               />
 
               {/* White corner brackets */}
-              <span className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-white pointer-events-none" />
-              <span className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-white pointer-events-none" />
-              <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-white pointer-events-none" />
-              <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-white pointer-events-none" />
+              <span className="pointer-events-none absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-white" />
+              <span className="pointer-events-none absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-white" />
+              <span className="pointer-events-none absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-white" />
+              <span className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 border-r-2 border-b-2 border-white" />
 
               {isUploading ? (
                 <div className="flex flex-col items-center gap-4">
-                  <div className="w-10 h-10 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="h-10 w-10 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-3 pointer-events-none select-none text-center p-8">
-                  <span className="material-symbols-outlined text-3xl text-zinc-400">upload_file</span>
+                <div className="pointer-events-none flex flex-col items-center gap-3 p-8 text-center select-none">
+                  <span className="material-symbols-outlined text-3xl text-zinc-400">
+                    upload_file
+                  </span>
                   <p
                     className="text-sm font-medium text-white"
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
-                    {isDragOver ? "Drop to analyze" : "Upload for instant analysis"}
+                    {isDragOver
+                      ? 'Drop to analyze'
+                      : 'Upload for instant analysis'}
                   </p>
                   <p
-                    className="text-[10px] uppercase tracking-widest text-zinc-500"
+                    className="text-[10px] tracking-widest text-zinc-500 uppercase"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     Supported: .JPG, .PNG, .WEBP
@@ -226,7 +252,7 @@ export default function Archive() {
               )}
 
               {uploadError && (
-                <div className="absolute bottom-4 left-4 right-4 bg-red-900/80 border border-red-700 rounded-lg px-4 py-3 text-sm text-red-200">
+                <div className="absolute right-4 bottom-4 left-4 rounded-lg border border-red-700 bg-red-900/80 px-4 py-3 text-sm text-red-200">
                   {uploadError}
                 </div>
               )}
@@ -236,12 +262,12 @@ export default function Archive() {
           {/* Instant Analysis Samples */}
           <div className="mt-12">
             <p
-              className="text-[10px] uppercase tracking-widest text-zinc-500 mb-4"
+              className="mb-4 text-[10px] tracking-widest text-zinc-500 uppercase"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               Instant Analysis Samples
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
               {SAMPLE_LURES.map((lure) => (
                 <button
                   key={lure.id}
@@ -249,22 +275,24 @@ export default function Archive() {
                   disabled={!!loadingSampleId}
                   aria-label={`Analyze sample: ${lure.name}`}
                   className={[
-                    "group relative aspect-square bg-zinc-900 border border-zinc-800",
-                    "hover:border-white rounded-lg overflow-hidden cursor-pointer",
-                    "transition-all duration-200",
-                    loadingSampleId === lure.id ? "opacity-50" : "",
-                    !!loadingSampleId && loadingSampleId !== lure.id ? "opacity-40 cursor-not-allowed" : "",
-                  ].join(" ")}
+                    'group relative aspect-square border border-zinc-800 bg-zinc-900',
+                    'cursor-pointer overflow-hidden rounded-lg hover:border-white',
+                    'transition-all duration-200',
+                    loadingSampleId === lure.id ? 'opacity-50' : '',
+                    !!loadingSampleId && loadingSampleId !== lure.id
+                      ? 'cursor-not-allowed opacity-40'
+                      : '',
+                  ].join(' ')}
                 >
                   <img
                     src={lure.src}
                     alt={lure.name}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-200"
+                    className="h-full w-full object-cover opacity-60 transition-opacity duration-200 group-hover:opacity-100"
                   />
                   {/* Slide-up filename label */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/80 px-2 py-1.5 translate-y-full group-hover:translate-y-0 transition-transform duration-200">
+                  <div className="absolute right-0 bottom-0 left-0 translate-y-full bg-black/80 px-2 py-1.5 transition-transform duration-200 group-hover:translate-y-0">
                     <p
-                      className="text-[9px] uppercase tracking-widest text-white truncate"
+                      className="truncate text-[9px] tracking-widest text-white uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       {lure.name}
@@ -272,7 +300,7 @@ export default function Archive() {
                   </div>
                   {loadingSampleId === lure.id && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     </div>
                   )}
                 </button>
@@ -281,40 +309,43 @@ export default function Archive() {
               {/* Add slot */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="aspect-square bg-zinc-900 border border-dashed border-zinc-700 hover:border-zinc-500 rounded-lg flex items-center justify-center transition-colors duration-200"
+                className="flex aspect-square items-center justify-center rounded-lg border border-dashed border-zinc-700 bg-zinc-900 transition-colors duration-200 hover:border-zinc-500"
                 aria-label="Upload new lure"
               >
-                <span className="material-symbols-outlined text-zinc-600 text-2xl">more_horiz</span>
+                <span className="material-symbols-outlined text-2xl text-zinc-600">
+                  more_horiz
+                </span>
               </button>
             </div>
           </div>
 
           {/* System Protocol */}
-          <div className="mt-16 mb-12 max-w-2xl border-l-2 border-blue-500 pl-6 py-2">
+          <div className="mt-16 mb-12 max-w-2xl border-l-2 border-blue-500 py-2 pl-6">
             <p
-              className="text-[10px] uppercase tracking-widest text-white mb-3"
+              className="mb-3 text-[10px] tracking-widest text-white uppercase"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               System Protocol
             </p>
             <p
-              className="text-[11px] uppercase text-zinc-400 leading-relaxed opacity-80 mb-4"
+              className="mb-4 text-[11px] leading-relaxed text-zinc-400 uppercase opacity-80"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              Pelagic Studio simulates yellowfin tuna vision using peer-reviewed visual
-              neuroscience. Photoreceptor responses are computed via the Govardovskii (2000)
-              visual pigment nomogram. Water attenuation follows Jerlov (1976) Type I open
-              ocean coefficients. Primary data source: Loew, McFarland &amp; Margulies (2002).
-              All processing is performed client-side via Web Workers — no image data is
+              Pelagic Studio simulates yellowfin tuna vision using peer-reviewed
+              visual neuroscience. Photoreceptor responses are computed via the
+              Govardovskii (2000) visual pigment nomogram. Water attenuation
+              follows Jerlov (1976) Type I open ocean coefficients. Primary data
+              source: Loew, McFarland &amp; Margulies (2002). All processing is
+              performed client-side via Web Workers — no image data is
               transmitted to any server.
             </p>
-            <a
-              href="#"
-              className="text-[10px] uppercase tracking-widest text-blue-400 underline"
+            <Link
+              to="/about"
+              className="text-[10px] tracking-widest text-blue-400 uppercase underline"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               View Documentation / Protocol v3.1
-            </a>
+            </Link>
           </div>
         </div>
       </main>

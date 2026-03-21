@@ -40,20 +40,20 @@ export interface ContrastStats {
 }
 
 export interface WorkerProcessMessage {
-  type: "process";
+  type: 'process';
   imageData: ImageData;
   species: SpeciesProfile;
   depth: number;
 }
 
 export interface WorkerResultMessage {
-  type: "result";
+  type: 'result';
   imageData: ImageData;
   stats: ContrastStats;
 }
 
 export interface WorkerProgressMessage {
-  type: "progress";
+  type: 'progress';
   percent: number;
 }
 

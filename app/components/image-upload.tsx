@@ -1,10 +1,10 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback } from 'react';
 import {
   loadImageFromFile,
   getImageFromClipboard,
   ImageLoadError,
-} from "~/lib/utils/image";
-import type { LoadedImage } from "~/lib/utils/image";
+} from '~/lib/utils/image';
+import type { LoadedImage } from '~/lib/utils/image';
 
 interface ImageUploadProps {
   onImageLoaded: (image: LoadedImage) => void;
@@ -28,13 +28,13 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
         if (err instanceof ImageLoadError) {
           setError(err.message);
         } else {
-          setError("Failed to load image. Please try another file.");
+          setError('Failed to load image. Please try another file.');
         }
       } finally {
         setIsLoading(false);
       }
     },
-    [onImageLoaded]
+    [onImageLoaded],
   );
 
   const handleDrop = useCallback(
@@ -44,7 +44,7 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
       const file = e.dataTransfer.files[0];
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -64,9 +64,9 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
       const file = e.target.files?.[0];
       if (file) handleFile(file);
       // Reset input so the same file can be re-selected
-      e.target.value = "";
+      e.target.value = '';
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handlePaste = useCallback(
@@ -74,7 +74,7 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
       const file = getImageFromClipboard(e.nativeEvent);
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleClick = useCallback(() => {
@@ -89,20 +89,26 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
       onDragLeave={handleDragLeave}
       onPaste={handlePaste}
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
       tabIndex={0}
       role="button"
       aria-label="Upload a lure image"
       className={[
-        "relative flex flex-col items-center justify-center",
-        "min-h-[400px] w-full max-w-3xl mx-auto rounded-2xl",
-        "border-2 border-dashed cursor-pointer",
-        "transition-all duration-200 outline-none",
-        "focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]",
+        'relative flex flex-col items-center justify-center',
+        'mx-auto min-h-[400px] w-full max-w-3xl rounded-2xl',
+        'cursor-pointer border-2 border-dashed',
+        'transition-all duration-200 outline-none',
+        'focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]',
         isDragOver
-          ? "border-cyan-400 bg-cyan-400/5 scale-[1.01]"
-          : "border-blue-900 hover:border-blue-600 bg-[#0d1426] hover:bg-[#111d35]",
-        isLoading ? "pointer-events-none opacity-60" : "",
-      ].join(" ")}
+          ? 'scale-[1.01] border-cyan-400 bg-cyan-400/5'
+          : 'border-blue-900 bg-[#0d1426] hover:border-blue-600 hover:bg-[#111d35]',
+        isLoading ? 'pointer-events-none opacity-60' : '',
+      ].join(' ')}
     >
       <input
         ref={fileInputRef}
@@ -115,18 +121,18 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
 
       {isLoading ? (
         <div className="flex flex-col items-center gap-4 p-8">
-          <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-blue-300 text-sm">Loading image...</p>
+          <div className="h-12 w-12 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+          <p className="text-sm text-blue-300">Loading image...</p>
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-6 p-12 pointer-events-none select-none text-center">
+        <div className="pointer-events-none flex flex-col items-center gap-6 p-12 text-center select-none">
           {/* Upload icon */}
           <div
             className={[
-              "w-20 h-20 rounded-2xl flex items-center justify-center",
-              "transition-colors duration-200",
-              isDragOver ? "bg-cyan-500/20" : "bg-blue-950",
-            ].join(" ")}
+              'flex h-20 w-20 items-center justify-center rounded-2xl',
+              'transition-colors duration-200',
+              isDragOver ? 'bg-cyan-500/20' : 'bg-blue-950',
+            ].join(' ')}
           >
             <svg
               viewBox="0 0 24 24"
@@ -134,9 +140,9 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
               stroke="currentColor"
               strokeWidth={1.5}
               className={[
-                "w-10 h-10 transition-colors duration-200",
-                isDragOver ? "text-cyan-400" : "text-blue-400",
-              ].join(" ")}
+                'h-10 w-10 transition-colors duration-200',
+                isDragOver ? 'text-cyan-400' : 'text-blue-400',
+              ].join(' ')}
             >
               <path
                 strokeLinecap="round"
@@ -147,27 +153,31 @@ export function ImageUpload({ onImageLoaded }: ImageUploadProps) {
           </div>
 
           <div>
-            <p className="text-lg font-medium text-slate-200 mb-1">
-              {isDragOver ? "Drop your lure photo here" : "Upload your lure photo"}
+            <p className="mb-1 text-lg font-medium text-slate-200">
+              {isDragOver
+                ? 'Drop your lure photo here'
+                : 'Upload your lure photo'}
             </p>
             <p className="text-sm text-slate-400">
               Drag & drop, click to browse, or paste from clipboard
             </p>
-            <p className="text-xs text-slate-600 mt-2">
+            <p className="mt-2 text-xs text-slate-600">
               JPEG, PNG, WebP — max 10MB
             </p>
           </div>
 
-          <div className="flex items-center gap-3 mt-2">
+          <div className="mt-2 flex items-center gap-3">
             <div className="h-px w-16 bg-blue-900" />
-            <span className="text-xs text-slate-600 uppercase tracking-wider">or try a sample</span>
+            <span className="text-xs tracking-wider text-slate-600 uppercase">
+              or try a sample
+            </span>
             <div className="h-px w-16 bg-blue-900" />
           </div>
         </div>
       )}
 
       {error && (
-        <div className="absolute bottom-4 left-4 right-4 bg-red-900/80 border border-red-700 rounded-lg px-4 py-3 text-sm text-red-200">
+        <div className="absolute right-4 bottom-4 left-4 rounded-lg border border-red-700 bg-red-900/80 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       )}

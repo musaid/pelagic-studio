@@ -2,5 +2,5 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pelagic-studio",
   "compatibility_date": "2025-04-04",
-  "main": "./workers/app.ts"
+  "main": "./workers/app.ts",
 }

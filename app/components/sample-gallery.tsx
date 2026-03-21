@@ -1,6 +1,6 @@
-import { loadImageFromUrl, ImageLoadError } from "~/lib/utils/image";
-import type { LoadedImage } from "~/lib/utils/image";
-import { useState } from "react";
+import { loadImageFromUrl, ImageLoadError } from '~/lib/utils/image';
+import type { LoadedImage } from '~/lib/utils/image';
+import { useState } from 'react';
 
 interface SampleLure {
   id: string;
@@ -12,32 +12,32 @@ interface SampleLure {
 
 const SAMPLE_LURES: SampleLure[] = [
   {
-    id: "blue-silver",
-    name: "Blue/Silver Skirted",
-    description: "Classic offshore trolling lure",
-    src: "/gallery/blue-silver.svg",
-    expectation: "High visibility",
+    id: 'blue-silver',
+    name: 'Blue/Silver Skirted',
+    description: 'Classic offshore trolling lure',
+    src: '/gallery/blue-silver.svg',
+    expectation: 'High visibility',
   },
   {
-    id: "red-orange",
-    name: "Red/Orange Skirt",
-    description: "Bright warm-color trolling lure",
-    src: "/gallery/red-orange.svg",
-    expectation: "Low visibility",
+    id: 'red-orange',
+    name: 'Red/Orange Skirt',
+    description: 'Bright warm-color trolling lure',
+    src: '/gallery/red-orange.svg',
+    expectation: 'Low visibility',
   },
   {
-    id: "chrome",
-    name: "Chrome Spoon",
-    description: "Metallic trolling spoon",
-    src: "/gallery/chrome-spoon.svg",
-    expectation: "High visibility",
+    id: 'chrome',
+    name: 'Chrome Spoon',
+    description: 'Metallic trolling spoon',
+    src: '/gallery/chrome-spoon.svg',
+    expectation: 'High visibility',
   },
   {
-    id: "multicolor",
-    name: "Multicolor Skirted",
-    description: "Mixed blue/green/pink lure",
-    src: "/gallery/multicolor.svg",
-    expectation: "Medium visibility",
+    id: 'multicolor',
+    name: 'Multicolor Skirted',
+    description: 'Mixed blue/green/pink lure',
+    src: '/gallery/multicolor.svg',
+    expectation: 'Medium visibility',
   },
 ];
 
@@ -65,8 +65,8 @@ export function SampleGallery({ onSampleSelected }: SampleGalleryProps) {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {SAMPLE_LURES.map((lure) => {
           const isLoading = loadingId === lure.id;
           const hasError = errorId === lure.id;
@@ -77,57 +77,60 @@ export function SampleGallery({ onSampleSelected }: SampleGalleryProps) {
               onClick={() => handleSelect(lure)}
               disabled={!!loadingId}
               className={[
-                "group relative flex flex-col rounded-xl overflow-hidden",
-                "bg-[#0d1426] border transition-all duration-200 text-left",
+                'group relative flex flex-col overflow-hidden rounded-xl',
+                'border bg-[#0d1426] text-left transition-all duration-200',
                 isLoading
-                  ? "border-blue-500 opacity-60"
+                  ? 'border-blue-500 opacity-60'
                   : hasError
-                  ? "border-red-700"
-                  : "border-blue-900 hover:border-blue-600 hover:bg-[#111d35]",
-                !!loadingId && !isLoading ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
-              ].join(" ")}
+                    ? 'border-red-700'
+                    : 'border-blue-900 hover:border-blue-600 hover:bg-[#111d35]',
+                !!loadingId && !isLoading
+                  ? 'cursor-not-allowed opacity-40'
+                  : 'cursor-pointer',
+              ].join(' ')}
               aria-label={`Try sample: ${lure.name}`}
             >
               {/* Image placeholder / thumbnail */}
-              <div className="aspect-square bg-blue-950/50 relative overflow-hidden">
+              <div className="relative aspect-square overflow-hidden bg-blue-950/50">
                 <img
                   src={lure.src}
                   alt={lure.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     // Hide broken images gracefully
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      'none';
                   }}
                 />
                 {isLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                    <div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
                   </div>
                 )}
                 {/* Expectation badge */}
                 <div
                   className={[
-                    "absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded text-xs font-medium",
-                    lure.expectation === "High visibility"
-                      ? "bg-emerald-900/80 text-emerald-300"
-                      : lure.expectation === "Low visibility"
-                      ? "bg-red-900/80 text-red-300"
-                      : "bg-yellow-900/80 text-yellow-300",
-                  ].join(" ")}
+                    'absolute right-1.5 bottom-1.5 rounded px-1.5 py-0.5 text-xs font-medium',
+                    lure.expectation === 'High visibility'
+                      ? 'bg-emerald-900/80 text-emerald-300'
+                      : lure.expectation === 'Low visibility'
+                        ? 'bg-red-900/80 text-red-300'
+                        : 'bg-yellow-900/80 text-yellow-300',
+                  ].join(' ')}
                 >
                   {lure.expectation}
                 </div>
               </div>
 
               <div className="p-2.5">
-                <p className="text-xs font-medium text-slate-300 leading-tight">
+                <p className="text-xs leading-tight font-medium text-slate-300">
                   {lure.name}
                 </p>
-                <p className="text-xs text-slate-600 mt-0.5 leading-tight">
+                <p className="mt-0.5 text-xs leading-tight text-slate-600">
                   {lure.description}
                 </p>
                 {hasError && (
-                  <p className="text-xs text-red-400 mt-1">Failed to load</p>
+                  <p className="mt-1 text-xs text-red-400">Failed to load</p>
                 )}
               </div>
             </button>

@@ -1,43 +1,47 @@
+import { useRef, useState, useEffect, useCallback, useTransition } from 'react';
+import type { MetaFunction } from 'react-router';
+import { TopAppBar } from '~/components/top-app-bar';
+import { MobileNav } from '~/components/mobile-nav';
+import { Footer } from '~/components/footer';
 import {
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-  useTransition,
-} from "react";
-import type { MetaFunction } from "react-router";
-import { TopAppBar } from "~/components/top-app-bar";
-import { MobileNav } from "~/components/mobile-nav";
-import { Footer } from "~/components/footer";
-import { loadImageFromFile, getImageFromClipboard, loadImageFromUrl, ImageLoadError } from "~/lib/utils/image";
-import { drawImageDataToCanvas } from "~/lib/utils/canvas";
-import { yellowfinTuna } from "~/lib/vision/species-profiles";
-import type { SpeciesProfile, ContrastStats, WorkerResultMessage, WorkerProgressMessage } from "~/lib/vision/types";
-import type { LoadedImage } from "~/lib/utils/image";
+  loadImageFromFile,
+  getImageFromClipboard,
+  loadImageFromUrl,
+  ImageLoadError,
+} from '~/lib/utils/image';
+import { drawImageDataToCanvas } from '~/lib/utils/canvas';
+import { yellowfinTuna } from '~/lib/vision/species-profiles';
+import type {
+  SpeciesProfile,
+  ContrastStats,
+  WorkerResultMessage,
+  WorkerProgressMessage,
+} from '~/lib/vision/types';
+import type { LoadedImage } from '~/lib/utils/image';
 
 export const meta: MetaFunction = () => [
   {
     title: "Pelagic Studio — See Your Lures Through A Tuna's Eyes",
   },
   {
-    name: "description",
+    name: 'description',
     content:
-      "Upload any fishing lure photo and see what yellowfin tuna actually see. Science-backed vision simulation for serious offshore anglers.",
+      'Upload any fishing lure photo and see what yellowfin tuna actually see. Science-backed vision simulation for serious offshore anglers.',
   },
   {
-    property: "og:title",
+    property: 'og:title',
     content: "Pelagic Studio — See Your Lures Through A Tuna's Eyes",
   },
   {
-    property: "og:description",
+    property: 'og:description',
     content:
-      "Upload any fishing lure photo and see what yellowfin tuna actually see. Science-backed vision simulation for serious offshore anglers.",
+      'Upload any fishing lure photo and see what yellowfin tuna actually see. Science-backed vision simulation for serious offshore anglers.',
   },
-  { property: "og:type", content: "website" },
-  { property: "og:url", content: "https://pelagicstudio.com" },
-  { property: "og:image", content: "https://pelagicstudio.com/og-image.png" },
-  { name: "twitter:card", content: "summary_large_image" },
-  { tagName: "link", rel: "canonical", href: "https://pelagicstudio.com" },
+  { property: 'og:type', content: 'website' },
+  { property: 'og:url', content: 'https://pelagicstudio.com' },
+  { property: 'og:image', content: 'https://pelagicstudio.com/og-image.png' },
+  { name: 'twitter:card', content: 'summary_large_image' },
+  { tagName: 'link', rel: 'canonical', href: 'https://pelagicstudio.com' },
 ];
 
 interface SampleLure {
@@ -47,9 +51,21 @@ interface SampleLure {
 }
 
 const SAMPLE_LURES: SampleLure[] = [
-  { id: "lure-green", name: "CH150F — Green Mackerel", src: "/gallery/lure-green.webp" },
-  { id: "lure-blue", name: "CH150F — Blue Mackerel", src: "/gallery/lure-blue.webp" },
-  { id: "lure-silver", name: "CH150F — Blue/Silver", src: "/gallery/lure-silver.webp" },
+  {
+    id: 'lure-green',
+    name: 'CH150F — Green Mackerel',
+    src: '/gallery/lure-green.webp',
+  },
+  {
+    id: 'lure-blue',
+    name: 'CH150F — Blue Mackerel',
+    src: '/gallery/lure-blue.webp',
+  },
+  {
+    id: 'lure-silver',
+    name: 'CH150F — Blue/Silver',
+    src: '/gallery/lure-silver.webp',
+  },
 ];
 
 const SLIDER_MIN = 0.02;
@@ -63,8 +79,11 @@ export default function Index() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [loadedImage, setLoadedImage] = useState<LoadedImage | null>(null);
-  const [originalImageData, setOriginalImageData] = useState<ImageData | null>(null);
-  const [processedImageData, setProcessedImageData] = useState<ImageData | null>(null);
+  const [originalImageData, setOriginalImageData] = useState<ImageData | null>(
+    null,
+  );
+  const [processedImageData, setProcessedImageData] =
+    useState<ImageData | null>(null);
   const [stats, setStats] = useState<ContrastStats | null>(null);
   const [depth, setDepth] = useState(0);
   const [selectedSpecies] = useState<SpeciesProfile>(yellowfinTuna);
@@ -94,15 +113,17 @@ export default function Index() {
   // ── Web Worker init ────────────────────────────────────────────────────────
   useEffect(() => {
     const worker = new Worker(
-      new URL("../lib/vision/worker.ts", import.meta.url),
-      { type: "module" }
+      new URL('../lib/vision/worker.ts', import.meta.url),
+      { type: 'module' },
     );
 
-    worker.onmessage = (event: MessageEvent<WorkerResultMessage | WorkerProgressMessage>) => {
+    worker.onmessage = (
+      event: MessageEvent<WorkerResultMessage | WorkerProgressMessage>,
+    ) => {
       const msg = event.data;
-      if (msg.type === "progress") {
+      if (msg.type === 'progress') {
         setProcessingProgress(msg.percent);
-      } else if (msg.type === "result") {
+      } else if (msg.type === 'result') {
         setProcessedImageData(msg.imageData);
         setStats(msg.stats);
         setIsProcessing(false);
@@ -111,7 +132,7 @@ export default function Index() {
     };
 
     worker.onerror = (err) => {
-      console.error("Vision worker error:", err);
+      console.error('Vision worker error:', err);
       setIsProcessing(false);
     };
 
@@ -151,7 +172,9 @@ export default function Index() {
       if (progress < 1) rafRef.current = requestAnimationFrame(animate);
     };
     rafRef.current = requestAnimationFrame(animate);
-    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [processedImageData]);
 
@@ -165,14 +188,14 @@ export default function Index() {
       const cloned = new ImageData(
         new Uint8ClampedArray(imageData.data),
         imageData.width,
-        imageData.height
+        imageData.height,
       );
       worker.postMessage(
-        { type: "process", imageData: cloned, species, depth: depthValue },
-        [cloned.data.buffer]
+        { type: 'process', imageData: cloned, species, depth: depthValue },
+        [cloned.data.buffer],
       );
     },
-    []
+    [],
   );
 
   const handleImageLoaded = useCallback(
@@ -186,7 +209,7 @@ export default function Index() {
         triggerProcessing(image.imageData, selectedSpecies, depth);
       });
     },
-    [selectedSpecies, depth, triggerProcessing]
+    [selectedSpecies, depth, triggerProcessing],
   );
 
   const handleDepthChange = useCallback(
@@ -198,7 +221,7 @@ export default function Index() {
         triggerProcessing(loadedImage.imageData, selectedSpecies, newDepth);
       }, 100);
     },
-    [loadedImage, selectedSpecies, triggerProcessing]
+    [loadedImage, selectedSpecies, triggerProcessing],
   );
 
   const handleReset = useCallback(() => {
@@ -223,13 +246,13 @@ export default function Index() {
         if (err instanceof ImageLoadError) {
           setUploadError(err.message);
         } else {
-          setUploadError("Failed to load image. Please try another file.");
+          setUploadError('Failed to load image. Please try another file.');
         }
       } finally {
         setIsUploading(false);
       }
     },
-    [handleImageLoaded]
+    [handleImageLoaded],
   );
 
   const handleDrop = useCallback(
@@ -239,7 +262,7 @@ export default function Index() {
       const file = e.dataTransfer.files[0];
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -258,9 +281,9 @@ export default function Index() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file) handleFile(file);
-      e.target.value = "";
+      e.target.value = '';
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handlePaste = useCallback(
@@ -268,7 +291,7 @@ export default function Index() {
       const file = getImageFromClipboard(e.nativeEvent);
       if (file) handleFile(file);
     },
-    [handleFile]
+    [handleFile],
   );
 
   const handleSampleSelect = useCallback(
@@ -283,7 +306,7 @@ export default function Index() {
         setLoadingSampleId(null);
       }
     },
-    [handleImageLoaded]
+    [handleImageLoaded],
   );
 
   // ── Compare slider pointer events ──────────────────────────────────────────
@@ -304,7 +327,7 @@ export default function Index() {
       setIsDragging(true);
       setSliderPos(getSliderPosition(e.clientX));
     },
-    [getSliderPosition]
+    [getSliderPosition],
   );
 
   const handlePointerMove = useCallback(
@@ -315,7 +338,7 @@ export default function Index() {
       // React 18 batches state updates in event handlers; no extra renders.
       setSliderPos(getSliderPosition(e.clientX));
     },
-    [getSliderPosition]
+    [getSliderPosition],
   );
 
   const stopDrag = useCallback(() => {
@@ -327,15 +350,15 @@ export default function Index() {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const step = e.shiftKey ? 0.1 : 0.01;
-      if (e.key === "ArrowLeft") {
+      if (e.key === 'ArrowLeft') {
         e.preventDefault();
         setSliderPos((p) => Math.max(SLIDER_MIN, p - step));
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         setSliderPos((p) => Math.min(SLIDER_MAX, p + step));
       }
     },
-    []
+    [],
   );
 
   const hasImage = !!loadedImage;
@@ -344,28 +367,29 @@ export default function Index() {
   // Depth context label
   const depthZoneLabel =
     depth === 0
-      ? "Surface"
+      ? 'Surface'
       : depth <= 10
-      ? "Epipelagic"
-      : depth <= 200
-      ? "Mesopelagic"
-      : "Bathypelagic";
+        ? 'Epipelagic'
+        : depth <= 200
+          ? 'Mesopelagic'
+          : 'Bathypelagic';
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-zinc-50">
+    <div className="flex min-h-screen flex-col bg-black text-zinc-50">
       {/* Structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Pelagic Studio",
-            url: "https://pelagicstudio.com",
-            description: "Upload any fishing lure photo and see what yellowfin tuna actually see.",
-            applicationCategory: "UtilityApplication",
-            operatingSystem: "Web",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'Pelagic Studio',
+            url: 'https://pelagicstudio.com',
+            description:
+              'Upload any fishing lure photo and see what yellowfin tuna actually see.',
+            applicationCategory: 'UtilityApplication',
+            operatingSystem: 'Web',
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
           }),
         }}
       />
@@ -373,26 +397,25 @@ export default function Index() {
       <TopAppBar />
 
       <main className="flex-1 pt-16 pb-20 md:pb-0">
-        <div className="max-w-5xl mx-auto w-full px-6">
-
+        <div className="mx-auto w-full max-w-5xl px-6">
           {/* ── Page header ─────────────────────────────────────────────── */}
-          <div className="mt-8 border-b border-zinc-800 pb-4 flex justify-between items-end">
+          <div className="mt-8 flex items-end justify-between border-b border-zinc-800 pb-4">
             <div>
               <p
-                className="text-[10px] uppercase tracking-widest text-blue-400 mb-1"
+                className="mb-1 text-[10px] tracking-widest text-blue-400 uppercase"
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 Status: Ready
               </p>
               <h1
-                className="text-2xl font-bold text-white uppercase tracking-tight"
+                className="text-2xl font-bold tracking-tight text-white uppercase"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 Image Analyzer
               </h1>
             </div>
             <span
-              className="text-[10px] text-zinc-500 pb-1"
+              className="pb-1 text-[10px] text-zinc-500"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
               v3.1-beta / system_stable
@@ -409,25 +432,31 @@ export default function Index() {
                 onDragLeave={handleDragLeave}
                 onPaste={handlePaste}
                 onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
                 tabIndex={0}
                 role="button"
                 aria-label="Upload a lure image"
                 className={[
-                  "relative flex-grow min-h-[350px] md:min-h-[450px]",
-                  "border border-dashed rounded-lg",
-                  "flex flex-col items-center justify-center cursor-pointer",
-                  "transition-all duration-200 outline-none",
-                  "focus-visible:ring-2 focus-visible:ring-blue-500",
+                  'relative min-h-[350px] flex-grow md:min-h-[450px]',
+                  'rounded-lg border border-dashed',
+                  'flex cursor-pointer flex-col items-center justify-center',
+                  'transition-all duration-200 outline-none',
+                  'focus-visible:ring-2 focus-visible:ring-blue-500',
                   isDragOver
-                    ? "border-blue-500 upload-zone-active"
-                    : "border-zinc-700 hover:border-zinc-500",
-                  isUploading ? "pointer-events-none opacity-60" : "",
-                ].join(" ")}
+                    ? 'upload-zone-active border-blue-500'
+                    : 'border-zinc-700 hover:border-zinc-500',
+                  isUploading ? 'pointer-events-none opacity-60' : '',
+                ].join(' ')}
                 style={{
                   backgroundImage: isDragOver
                     ? undefined
-                    : "radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
+                    : 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+                  backgroundSize: '24px 24px',
                 }}
               >
                 <input
@@ -440,37 +469,39 @@ export default function Index() {
                 />
 
                 {/* Corner brackets */}
-                <span className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-zinc-500 pointer-events-none" />
-                <span className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-zinc-500 pointer-events-none" />
-                <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-zinc-500 pointer-events-none" />
-                <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-zinc-500 pointer-events-none" />
+                <span className="pointer-events-none absolute top-3 left-3 h-4 w-4 border-t-2 border-l-2 border-zinc-500" />
+                <span className="pointer-events-none absolute top-3 right-3 h-4 w-4 border-t-2 border-r-2 border-zinc-500" />
+                <span className="pointer-events-none absolute bottom-3 left-3 h-4 w-4 border-b-2 border-l-2 border-zinc-500" />
+                <span className="pointer-events-none absolute right-3 bottom-3 h-4 w-4 border-r-2 border-b-2 border-zinc-500" />
 
                 {isUploading ? (
                   <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="h-12 w-12 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                     <p
-                      className="text-[10px] uppercase tracking-widest text-blue-400"
+                      className="text-[10px] tracking-widest text-blue-400 uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       Loading...
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-4 p-8 pointer-events-none select-none text-center">
-                    <div className="w-20 h-20 bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center">
+                  <div className="pointer-events-none flex flex-col items-center gap-4 p-8 text-center select-none">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900">
                       <span className="material-symbols-outlined text-4xl text-white">
                         add_a_photo
                       </span>
                     </div>
                     <div>
                       <p
-                        className="text-lg font-medium text-white mb-2"
+                        className="mb-2 text-lg font-medium text-white"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
-                        {isDragOver ? "Drop to analyze" : "Tap to upload lure photo"}
+                        {isDragOver
+                          ? 'Drop to analyze'
+                          : 'Tap to upload lure photo'}
                       </p>
                       <p
-                        className="text-[10px] uppercase tracking-widest text-zinc-500"
+                        className="text-[10px] tracking-widest text-zinc-500 uppercase"
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         Supported: .JPG, .PNG, .WEBP
@@ -480,7 +511,7 @@ export default function Index() {
                 )}
 
                 {uploadError && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-red-900/80 border border-red-700 rounded-lg px-4 py-3 text-sm text-red-200">
+                  <div className="absolute right-4 bottom-4 left-4 rounded-lg border border-red-700 bg-red-900/80 px-4 py-3 text-sm text-red-200">
                     {uploadError}
                   </div>
                 )}
@@ -488,15 +519,15 @@ export default function Index() {
 
               {/* Reference Library */}
               <div className="mt-12">
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <p
-                    className="text-[10px] uppercase tracking-widest text-zinc-500"
+                    className="text-[10px] tracking-widest text-zinc-500 uppercase"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     Reference Library
                   </p>
                   <button
-                    className="text-[10px] uppercase tracking-widest text-zinc-500 hover:text-white transition-colors duration-150"
+                    className="text-[10px] tracking-widest text-zinc-500 uppercase transition-colors duration-150 hover:text-white"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     View All
@@ -510,21 +541,23 @@ export default function Index() {
                       disabled={!!loadingSampleId}
                       aria-label={`Load sample: ${lure.name}`}
                       className={[
-                        "group relative aspect-square bg-zinc-900 border border-zinc-800",
-                        "overflow-hidden rounded-lg cursor-pointer transition-all duration-200",
-                        "hover:border-zinc-600",
-                        loadingSampleId === lure.id ? "opacity-50" : "",
-                        !!loadingSampleId && loadingSampleId !== lure.id ? "opacity-40 cursor-not-allowed" : "",
-                      ].join(" ")}
+                        'group relative aspect-square border border-zinc-800 bg-zinc-900',
+                        'cursor-pointer overflow-hidden rounded-lg transition-all duration-200',
+                        'hover:border-zinc-600',
+                        loadingSampleId === lure.id ? 'opacity-50' : '',
+                        !!loadingSampleId && loadingSampleId !== lure.id
+                          ? 'cursor-not-allowed opacity-40'
+                          : '',
+                      ].join(' ')}
                     >
                       <img
                         src={lure.src}
                         alt={lure.name}
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+                        className="h-full w-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0"
                       />
                       {loadingSampleId === lure.id && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                          <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-400 border-t-transparent" />
                         </div>
                       )}
                     </button>
@@ -541,10 +574,10 @@ export default function Index() {
               <div
                 ref={containerRef}
                 className={[
-                  "compare-slider-container bg-zinc-900 border border-zinc-800 rounded-lg",
-                  "select-none cursor-col-resize",
-                  isDragging ? "no-select" : "",
-                ].join(" ")}
+                  'compare-slider-container rounded-lg border border-zinc-800 bg-zinc-900',
+                  'cursor-col-resize select-none',
+                  isDragging ? 'no-select' : '',
+                ].join(' ')}
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={stopDrag}
@@ -560,60 +593,66 @@ export default function Index() {
                 {/* Bottom canvas: original */}
                 <canvas
                   ref={originalCanvasRef}
-                  className="absolute inset-0 w-full h-full object-contain"
-                  style={{ imageRendering: "auto" }}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  style={{ imageRendering: 'auto' }}
                 />
                 {/* Top canvas: processed, clipped */}
                 <canvas
                   ref={processedCanvasRef}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 h-full w-full object-contain"
                   style={{
                     clipPath: `inset(0 0 0 ${sliderPercent})`,
-                    willChange: "clip-path",
-                    imageRendering: "auto",
+                    willChange: 'clip-path',
+                    imageRendering: 'auto',
                   }}
                 />
 
                 {/* Handle — pointer-events-none so the container captures all events */}
                 <div
-                  className="absolute top-0 bottom-0 pointer-events-none"
-                  style={{ left: sliderPercent, transform: "translateX(-50%)", width: "2px", background: "rgba(255,255,255,0.8)" }}
+                  className="pointer-events-none absolute top-0 bottom-0"
+                  style={{
+                    left: sliderPercent,
+                    transform: 'translateX(-50%)',
+                    width: '2px',
+                    background: 'rgba(255,255,255,0.8)',
+                  }}
                 >
                   {/* Visible knob */}
                   <div
                     className={[
-                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                      "w-10 h-10 rounded-full bg-white flex items-center justify-center",
-                      "shadow-lg transition-transform duration-150",
-                      isDragging ? "scale-125" : "scale-100",
-                    ].join(" ")}
+                      'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+                      'flex h-10 w-10 items-center justify-center rounded-full bg-white',
+                      'shadow-lg transition-transform duration-150',
+                      isDragging ? 'scale-125' : 'scale-100',
+                    ].join(' ')}
                   >
                     <span
-                      className="material-symbols-outlined text-black text-[18px]"
+                      className="material-symbols-outlined text-[18px] text-black"
                       style={{
-                        transform: "rotate(90deg)",
-                        fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
+                        transform: 'rotate(90deg)',
+                        fontVariationSettings:
+                          "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24",
                       }}
                     >
                       unfold_more
                     </span>
                   </div>
                   {/* Invisible 56px touch target centred on the line — per Apple HIG / Material Design */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14" />
+                  <div className="absolute top-1/2 left-1/2 h-14 w-14 -translate-x-1/2 -translate-y-1/2" />
                 </div>
 
                 {/* Labels */}
-                <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md px-3 py-1 border-l-2 border-white pointer-events-none">
+                <div className="pointer-events-none absolute top-3 left-3 border-l-2 border-white bg-black/80 px-3 py-1 backdrop-blur-md">
                   <span
-                    className="text-[10px] uppercase tracking-widest text-white"
+                    className="text-[10px] tracking-widest text-white uppercase"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     Human Vision
                   </span>
                 </div>
-                <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-3 py-1 border-r-2 border-white pointer-events-none">
+                <div className="pointer-events-none absolute top-3 right-3 border-r-2 border-white bg-black/80 px-3 py-1 backdrop-blur-md">
                   <span
-                    className="text-[10px] uppercase tracking-widest text-white"
+                    className="text-[10px] tracking-widest text-white uppercase"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
                     Tuna Vision ({depth}m)
@@ -622,10 +661,10 @@ export default function Index() {
 
                 {/* Processing indicator */}
                 {isProcessing && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 bg-black/70 backdrop-blur-sm border border-blue-500/30 rounded-full">
-                    <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                  <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-blue-500/30 bg-black/70 px-3 py-1.5 backdrop-blur-sm">
+                    <div className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
                     <span
-                      className="text-[10px] uppercase tracking-widest text-blue-300"
+                      className="text-[10px] tracking-widest text-blue-300 uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       Processing
@@ -636,7 +675,7 @@ export default function Index() {
 
               {/* Progress bar */}
               {isProcessing && (
-                <div className="w-full h-0.5 bg-zinc-800 rounded-full overflow-hidden -mt-6">
+                <div className="-mt-6 h-0.5 w-full overflow-hidden rounded-full bg-zinc-800">
                   <div
                     className="h-full bg-blue-500 transition-all duration-150"
                     style={{ width: `${processingProgress}%` }}
@@ -645,13 +684,13 @@ export default function Index() {
               )}
 
               {/* ── Controls strip ─────────────────────────────────────────── */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-12">
                 {/* Depth slider panel */}
-                <div className="md:col-span-8 bg-zinc-900/50 p-6 md:p-8 border border-zinc-800 rounded-lg">
-                  <div className="flex items-end justify-between mb-6">
+                <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 md:col-span-8 md:p-8">
+                  <div className="mb-6 flex items-end justify-between">
                     <div>
                       <p
-                        className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1"
+                        className="mb-1 text-[10px] tracking-widest text-zinc-500 uppercase"
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         Water Depth
@@ -660,11 +699,11 @@ export default function Index() {
                         className="text-2xl font-bold text-white"
                         style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
-                        {depth === 0 ? "0m" : `${depth}m`}
+                        {depth === 0 ? '0m' : `${depth}m`}
                       </p>
                     </div>
                     <span
-                      className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1"
+                      className="mb-1 text-[10px] tracking-widest text-zinc-500 uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       {depthZoneLabel}
@@ -674,10 +713,10 @@ export default function Index() {
                   {/* Gradient track + input */}
                   <div className="relative">
                     <div
-                      className="w-full h-1.5 rounded-full mb-4"
+                      className="mb-4 h-1.5 w-full rounded-full"
                       style={{
                         background:
-                          "linear-gradient(to right, #3b82f6 0%, #06b6d4 30%, #22c55e 50%, #eab308 70%, #ef4444 100%)",
+                          'linear-gradient(to right, #3b82f6 0%, #06b6d4 30%, #22c55e 50%, #eab308 70%, #ef4444 100%)',
                       }}
                     />
                     <input
@@ -685,20 +724,22 @@ export default function Index() {
                       min={0}
                       max={MAX_DEPTH}
                       value={depth}
-                      onChange={(e) => handleDepthChange(Number(e.target.value))}
+                      onChange={(e) =>
+                        handleDepthChange(Number(e.target.value))
+                      }
                       disabled={isProcessing}
                       className="depth-slider w-full"
                       aria-label={`Water depth: ${depth} meters`}
-                      style={{ marginTop: "-22px" }}
+                      style={{ marginTop: '-22px' }}
                     />
                   </div>
 
                   {/* Tick labels */}
-                  <div className="flex justify-between mt-3">
-                    {["0m", "100m", "200m"].map((label) => (
+                  <div className="mt-3 flex justify-between">
+                    {['0m', '100m', '200m'].map((label) => (
                       <span
                         key={label}
-                        className="text-[10px] uppercase tracking-widest text-zinc-600"
+                        className="text-[10px] tracking-widest text-zinc-600 uppercase"
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         {label}
@@ -708,21 +749,21 @@ export default function Index() {
                 </div>
 
                 {/* Action buttons */}
-                <div className="md:col-span-4 flex flex-col gap-3 justify-center">
+                <div className="flex flex-col justify-center gap-3 md:col-span-4">
                   <button
-                    className="w-full py-4 bg-white text-black hover:bg-blue-400 transition-colors duration-150 rounded-lg"
+                    className="w-full rounded-lg bg-white py-4 text-black transition-colors duration-150 hover:bg-blue-400"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
-                    <span className="text-[11px] uppercase tracking-[0.2em]">
+                    <span className="text-[11px] tracking-[0.2em] uppercase">
                       Export Spectral Map
                     </span>
                   </button>
                   <button
                     onClick={handleReset}
-                    className="w-full py-4 border border-zinc-800 text-white hover:bg-white/5 transition-colors duration-150 rounded-lg"
+                    className="w-full rounded-lg border border-zinc-800 py-4 text-white transition-colors duration-150 hover:bg-white/5"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
-                    <span className="text-[11px] uppercase tracking-[0.2em]">
+                    <span className="text-[11px] tracking-[0.2em] uppercase">
                       Analyze New Lure
                     </span>
                   </button>
@@ -731,24 +772,26 @@ export default function Index() {
 
               {/* ── Stats section ──────────────────────────────────────────── */}
               {stats && !isProcessing && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
                   {/* Visibility score card */}
-                  <div className="bg-zinc-900/50 p-6 border-l-4 border-blue-500 rounded-r-lg">
+                  <div className="rounded-r-lg border-l-4 border-blue-500 bg-zinc-900/50 p-6">
                     <p
-                      className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2"
+                      className="mb-2 text-[10px] tracking-widest text-zinc-500 uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       Visibility Score
                     </p>
                     <p
-                      className="text-5xl font-black text-white leading-none"
+                      className="text-5xl leading-none font-black text-white"
                       style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                     >
                       {stats.visibilityScore}
-                      <span className="text-xs text-zinc-500 font-normal">/100</span>
+                      <span className="text-xs font-normal text-zinc-500">
+                        /100
+                      </span>
                     </p>
                     <p
-                      className="text-[9px] uppercase tracking-widest text-zinc-400 mt-3"
+                      className="mt-3 text-[9px] tracking-widest text-zinc-400 uppercase"
                       style={{ fontFamily: "'Inter', sans-serif" }}
                     >
                       Optimal Contrast Range
@@ -756,46 +799,51 @@ export default function Index() {
                   </div>
 
                   {/* Spectral insights */}
-                  <div className="md:col-span-3 bg-zinc-900/50 p-6 rounded-lg border border-zinc-800">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="material-symbols-outlined text-zinc-400 text-[18px]">analytics</span>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 md:col-span-3">
+                    <div className="mb-4 flex items-center gap-3">
+                      <span className="material-symbols-outlined text-[18px] text-zinc-400">
+                        analytics
+                      </span>
                       <p
-                        className="text-[10px] uppercase tracking-widest text-zinc-400"
+                        className="text-[10px] tracking-widest text-zinc-400 uppercase"
                         style={{ fontFamily: "'Inter', sans-serif" }}
                       >
                         Monitored Spectral Insights
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       {[
                         {
-                          label: "Blue/Violet",
+                          label: 'Blue/Violet',
                           value: `${stats.colorCategories.blueViolet}%`,
                         },
                         {
-                          label: "Green",
+                          label: 'Green',
                           value: `${stats.colorCategories.green}%`,
                         },
                         {
-                          label: "Red/Orange",
+                          label: 'Red/Orange',
                           value: `${stats.colorCategories.redOrange}%`,
                         },
                         {
-                          label: "Metallic",
+                          label: 'Metallic',
                           value: `${stats.colorCategories.metallic}%`,
                         },
                         {
-                          label: "Brightness Retained",
+                          label: 'Brightness Retained',
                           value: `${stats.brightnessRetention}%`,
                         },
                         {
-                          label: "Depth Zone",
+                          label: 'Depth Zone',
                           value: depthZoneLabel,
                         },
                       ].map(({ label, value }) => (
-                        <div key={label} className="flex items-center justify-between border-b border-zinc-800 pb-2">
+                        <div
+                          key={label}
+                          className="flex items-center justify-between border-b border-zinc-800 pb-2"
+                        >
                           <span
-                            className="text-[10px] uppercase tracking-widest text-zinc-500"
+                            className="text-[10px] tracking-widest text-zinc-500 uppercase"
                             style={{ fontFamily: "'Inter', sans-serif" }}
                           >
                             {label}
@@ -814,7 +862,7 @@ export default function Index() {
                         {stats.recommendations.slice(0, 3).map((rec) => (
                           <p
                             key={rec}
-                            className="text-[10px] uppercase tracking-widest text-zinc-500"
+                            className="text-[10px] tracking-widest text-zinc-500 uppercase"
                             style={{ fontFamily: "'Inter', sans-serif" }}
                           >
                             — {rec}

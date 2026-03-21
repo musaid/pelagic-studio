@@ -1,11 +1,10 @@
-import type { SpeciesProfile, ContrastStats } from "./types";
+import type { SpeciesProfile, ContrastStats } from './types';
 import {
   rgbToHsl,
-  hslToRgb,
   hueToWavelength,
   wavelengthToCategory,
-} from "./color-science";
-import { depthTransmittance } from "./depth-filter";
+} from './color-science';
+import { depthTransmittance } from './depth-filter';
 
 /**
  * Govardovskii et al. (2000) visual pigment nomogram template.
@@ -16,8 +15,7 @@ import { depthTransmittance } from "./depth-filter";
  */
 function govardovskiiResponse(lambda: number, lambdaMax: number): number {
   const x = lambdaMax / lambda;
-  const a =
-    0.8795 + 0.0459 * Math.exp(-((lambdaMax - 300) ** 2) / 11940);
+  const a = 0.8795 + 0.0459 * Math.exp(-((lambdaMax - 300) ** 2) / 11940);
   const A = 69.7;
   const B = 28;
   const b = 0.922;
@@ -27,10 +25,7 @@ function govardovskiiResponse(lambda: number, lambdaMax: number): number {
 
   const response =
     1 /
-    (Math.exp(A * (a - x)) +
-      Math.exp(B * (b - x)) +
-      Math.exp(C * (c - x)) +
-      D);
+    (Math.exp(A * (a - x)) + Math.exp(B * (b - x)) + Math.exp(C * (c - x)) + D);
 
   return Math.max(0, Math.min(1, response));
 }
@@ -51,7 +46,7 @@ function processPixel(
   g: number,
   b: number,
   species: SpeciesProfile,
-  depth: number
+  depth: number,
 ): [number, number, number] {
   const [h, s, l] = rgbToHsl(r, g, b);
 
@@ -82,8 +77,11 @@ function processPixel(
 
   // Calculate cone responses using Govardovskii nomogram
   let totalWeightedResponse = 0;
-  const coneResponses: { response: number; weight: number; lambdaMax: number }[] =
-    [];
+  const coneResponses: {
+    response: number;
+    weight: number;
+    lambdaMax: number;
+  }[] = [];
 
   for (const cone of species.cones) {
     const raw = govardovskiiResponse(dominantWavelength, cone.lambdaMax);
@@ -98,19 +96,20 @@ function processPixel(
 
   const maxPossibleResponse = species.cones.reduce(
     (sum, c) => sum + c.peakSensitivity,
-    0
+    0,
   );
   const normalizedResponse = Math.min(
     1,
-    totalWeightedResponse / maxPossibleResponse
+    totalWeightedResponse / maxPossibleResponse,
   );
 
   // Map cone responses to a displayable blue-dominated color
   // The 485nm cone response maps to a blue-green channel
   // The 426nm cone response maps to a violet-blue channel
-  const blueGreenCone = coneResponses.find((c) => c.lambdaMax >= 480) ??
-    coneResponses[0];
-  const violetCone = coneResponses.find((c) => c.lambdaMax < 450) ??
+  const blueGreenCone =
+    coneResponses.find((c) => c.lambdaMax >= 480) ?? coneResponses[0];
+  const violetCone =
+    coneResponses.find((c) => c.lambdaMax < 450) ??
     coneResponses[coneResponses.length - 1];
 
   const blueGreenResponse = blueGreenCone.response * blueGreenCone.weight;
@@ -121,8 +120,12 @@ function processPixel(
 
   // Build output color in the fish's perceived space
   // The output is always blue-dominated; the hue shifts based on relative cone responses
-  const blueChannel = Math.round(perceivedBrightness * 255 * 0.9 + blueGreenResponse * 30);
-  const greenChannel = Math.round(blueGreenResponse * perceivedBrightness * 180);
+  const blueChannel = Math.round(
+    perceivedBrightness * 255 * 0.9 + blueGreenResponse * 30,
+  );
+  const greenChannel = Math.round(
+    blueGreenResponse * perceivedBrightness * 180,
+  );
   const redChannel = Math.round(violetResponse * perceivedBrightness * 80);
 
   return [
@@ -141,7 +144,7 @@ export function processImageData(
   imageData: ImageData,
   species: SpeciesProfile,
   depth: number,
-  progressCallback?: (percent: number) => void
+  progressCallback?: (percent: number) => void,
 ): { imageData: ImageData; stats: ContrastStats } {
   const { width, height, data } = imageData;
   const outputData = new Uint8ClampedArray(data.length);
@@ -159,7 +162,6 @@ export function processImageData(
   let wavelengthSum = 0;
   let wavelengthCount = 0;
 
-  const totalPixels = width * height;
   const progressInterval = Math.max(1, Math.floor(height / 20));
 
   for (let y = 0; y < height; y++) {
@@ -243,8 +245,8 @@ export function processImageData(
         pctGreen * 0.4 +
         pctRedOrange * 0.05 +
         pctMetallic * 0.85 +
-        pctNeutral * 0.5
-    )
+        pctNeutral * 0.5,
+    ),
   );
 
   const recommendations = buildRecommendations(
@@ -254,7 +256,7 @@ export function processImageData(
     pctMetallic,
     pctNeutral,
     depth,
-    visibilityScore
+    visibilityScore,
   );
 
   return {
@@ -282,40 +284,55 @@ function buildRecommendations(
   pctMetallic: number,
   pctNeutral: number,
   depth: number,
-  visibilityScore: number
+  visibilityScore: number,
 ): string[] {
   const recs: string[] = [];
 
   if (pctBlue > 20) {
-    recs.push("Strong blue-green contrast — highly visible in the 460-500nm range");
+    recs.push(
+      'Strong blue-green contrast — highly visible in the 460-500nm range',
+    );
   }
   if (pctMetallic > 10) {
-    recs.push("Metallic flash preserved — chrome reflects across the full spectrum");
+    recs.push(
+      'Metallic flash preserved — chrome reflects across the full spectrum',
+    );
   }
   if (pctGreen > 20) {
-    recs.push("Green tones partially visible — some contrast retained at depth");
+    recs.push(
+      'Green tones partially visible — some contrast retained at depth',
+    );
   }
   if (pctRedOrange > 20) {
-    const depthNote =
-      depth > 10 ? `below ${depth}m` : "below 10m";
-    recs.push(`Red/orange elements appear black ${depthNote} — effectively invisible`);
+    const depthNote = depth > 10 ? `below ${depth}m` : 'below 10m';
+    recs.push(
+      `Red/orange elements appear black ${depthNote} — effectively invisible`,
+    );
   }
   if (pctRedOrange > 40) {
-    recs.push("Heavy red/orange pigment — consider a blue or silver alternative for depth");
+    recs.push(
+      'Heavy red/orange pigment — consider a blue or silver alternative for depth',
+    );
   }
   if (depth > 50 && pctGreen > 15) {
-    recs.push("Green contrast diminishes significantly past 50m");
+    recs.push('Green contrast diminishes significantly past 50m');
   }
   if (depth > 100) {
-    recs.push("At 100m+ only blue-violet wavelengths penetrate — lure silhouette dominates");
+    recs.push(
+      'At 100m+ only blue-violet wavelengths penetrate — lure silhouette dominates',
+    );
   }
   if (visibilityScore < 30) {
-    recs.push("Low overall visibility — this color scheme is poorly matched to tuna vision");
+    recs.push(
+      'Low overall visibility — this color scheme is poorly matched to tuna vision',
+    );
   } else if (visibilityScore > 70) {
-    recs.push("High visibility score — this lure is well-matched to tuna visual sensitivity");
+    recs.push(
+      'High visibility score — this lure is well-matched to tuna visual sensitivity',
+    );
   }
   if (pctNeutral > 30) {
-    recs.push("Neutral/white areas visible as grey-blue through tuna eyes");
+    recs.push('Neutral/white areas visible as grey-blue through tuna eyes');
   }
 
   return recs;

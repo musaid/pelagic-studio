@@ -1,26 +1,26 @@
-import { processImageData } from "./algorithm";
+import { processImageData } from './algorithm';
 import type {
   WorkerProcessMessage,
   WorkerResultMessage,
   WorkerProgressMessage,
-} from "./types";
+} from './types';
 
 self.onmessage = (event: MessageEvent<WorkerProcessMessage>) => {
   const { type, imageData, species, depth } = event.data;
-  if (type !== "process") return;
+  if (type !== 'process') return;
 
   const { imageData: resultImageData, stats } = processImageData(
     imageData,
     species,
     depth,
     (percent) => {
-      const progressMsg: WorkerProgressMessage = { type: "progress", percent };
+      const progressMsg: WorkerProgressMessage = { type: 'progress', percent };
       self.postMessage(progressMsg);
-    }
+    },
   );
 
   const resultMsg: WorkerResultMessage = {
-    type: "result",
+    type: 'result',
     imageData: resultImageData,
     stats,
   };
