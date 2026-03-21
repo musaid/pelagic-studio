@@ -27,6 +27,7 @@ pnpm dlx create-react-router@latest --template remix-run/react-router-templates/
 ```
 
 **Stack:**
+
 - React Router v7 (framework mode, SSR)
 - TypeScript (strict, explicit types, no `any`/`unknown`)
 - Tailwind CSS v4
@@ -36,6 +37,7 @@ pnpm dlx create-react-router@latest --template remix-run/react-router-templates/
 - Web Workers for off-main-thread pixel processing
 
 **Conventions:**
+
 - Functional components only, small (<200 lines), single responsibility
 - Early returns over nested conditions
 - Descriptive variable names with context
@@ -98,6 +100,7 @@ This is the most important part. The algorithm must be grounded in real research
 **Source:** Loew, McFarland & Margulies (2002) "Developmental Changes in the Visual Pigments of the Yellowfin Tuna, Thunnus albacares" — Marine and Freshwater Behaviour and Physiology, Vol. 35, No. 4, pp. 235-246.
 
 **Key findings for adult YFT:**
+
 - **Photopic dichromat** — two cone pigment types for daylight color vision
 - **Twin cones:** λmax = 485 nm (blue-green, dominant — these are the primary brightness/motion detectors)
 - **Single cones:** λmax = 426 nm (violet — secondary, for short-wavelength discrimination)
@@ -113,9 +116,9 @@ This is the most important part. The algorithm must be grounded in real research
 
 interface ConeType {
   name: string;
-  lambdaMax: number;        // Peak sensitivity wavelength in nm
-  peakSensitivity: number;  // Relative weight (0-1) in visual system
-  halfBandwidth: number;    // nm, approximate half-max bandwidth
+  lambdaMax: number; // Peak sensitivity wavelength in nm
+  peakSensitivity: number; // Relative weight (0-1) in visual system
+  halfBandwidth: number; // nm, approximate half-max bandwidth
 }
 
 interface SpeciesProfile {
@@ -129,7 +132,7 @@ interface SpeciesProfile {
 }
 
 interface DepthAttenuation {
-  depth: number;           // meters
+  depth: number; // meters
   // Attenuation coefficients per wavelength band (Jerlov Type I open ocean water)
   // Higher = more attenuation = less light reaches that depth
   coefficients: WavelengthAttenuation[];
@@ -137,7 +140,7 @@ interface DepthAttenuation {
 
 interface WavelengthAttenuation {
   wavelengthRange: [number, number]; // nm
-  attenuationCoeff: number;          // per meter (Kd)
+  attenuationCoeff: number; // per meter (Kd)
 }
 ```
 
@@ -145,26 +148,27 @@ interface WavelengthAttenuation {
 // species-profiles.ts
 
 const yellowfinTuna: SpeciesProfile = {
-  slug: "yellowfin-tuna",
-  name: "Yellowfin Tuna",
-  scientificName: "Thunnus albacares",
+  slug: 'yellowfin-tuna',
+  name: 'Yellowfin Tuna',
+  scientificName: 'Thunnus albacares',
   cones: [
     {
-      name: "Twin Cone (Blue-Green)",
+      name: 'Twin Cone (Blue-Green)',
       lambdaMax: 485,
-      peakSensitivity: 0.85,  // Dominant channel
+      peakSensitivity: 0.85, // Dominant channel
       halfBandwidth: 45,
     },
     {
-      name: "Single Cone (Violet)",
+      name: 'Single Cone (Violet)',
       lambdaMax: 426,
-      peakSensitivity: 0.35,  // Secondary channel
+      peakSensitivity: 0.35, // Secondary channel
       halfBandwidth: 35,
     },
   ],
   rodLambdaMax: 483,
-  description: "Dichromatic vision optimized for the blue open ocean. Highly sensitive to blue-green wavelengths (485nm), with a secondary violet channel (426nm). Effectively blind to red and orange.",
-  citation: "Loew, McFarland & Margulies (2002)",
+  description:
+    'Dichromatic vision optimized for the blue open ocean. Highly sensitive to blue-green wavelengths (485nm), with a secondary violet channel (426nm). Effectively blind to red and orange.',
+  citation: 'Loew, McFarland & Margulies (2002)',
 };
 ```
 
@@ -177,7 +181,7 @@ For each pixel in the uploaded image:
 3. **Calculate cone responses** — for each cone type, compute the Govardovskii visual pigment template response at that wavelength:
    - Use the Govardovskii et al. (2000) nomogram template for vertebrate visual pigments
    - `S(λ) = 1 / { exp[A * (a - λmax/λ)] + exp[B * (b - λmax/λ)] + exp[C * (c - λmax/λ)] + D }`
-   - Where A=69.7, a=0.8795+0.0459*exp(-(λmax-300)²/11940), B=28, b=0.922, C=-14.9, c=1.104, D=0.674
+   - Where A=69.7, a=0.8795+0.0459\*exp(-(λmax-300)²/11940), B=28, b=0.922, C=-14.9, c=1.104, D=0.674
    - This gives a smooth bell curve of sensitivity centered on λmax
 4. **Weight cone responses** — multiply each cone's response by its `peakSensitivity` weight
 5. **Generate output color** — the fish sees a reduced color space. Map the weighted cone responses back to a displayable color:
@@ -195,14 +199,14 @@ Use Jerlov Type I (clear open ocean) water attenuation coefficients:
 // Diffuse attenuation coefficients Kd (per meter) for Jerlov Type I water
 // Source: Jerlov (1976), adapted from various oceanographic references
 const jerlovTypeI: WavelengthAttenuation[] = [
-  { wavelengthRange: [380, 420], attenuationCoeff: 0.040 },  // UV-Violet: moderate
-  { wavelengthRange: [420, 460], attenuationCoeff: 0.025 },  // Violet-Blue: low (most penetrating)
-  { wavelengthRange: [460, 500], attenuationCoeff: 0.020 },  // Blue: lowest attenuation
-  { wavelengthRange: [500, 540], attenuationCoeff: 0.030 },  // Blue-Green: low
-  { wavelengthRange: [540, 580], attenuationCoeff: 0.065 },  // Green-Yellow: moderate
-  { wavelengthRange: [580, 620], attenuationCoeff: 0.130 },  // Yellow-Orange: high
-  { wavelengthRange: [620, 660], attenuationCoeff: 0.290 },  // Orange-Red: very high
-  { wavelengthRange: [660, 700], attenuationCoeff: 0.430 },  // Red: extreme
+  { wavelengthRange: [380, 420], attenuationCoeff: 0.04 }, // UV-Violet: moderate
+  { wavelengthRange: [420, 460], attenuationCoeff: 0.025 }, // Violet-Blue: low (most penetrating)
+  { wavelengthRange: [460, 500], attenuationCoeff: 0.02 }, // Blue: lowest attenuation
+  { wavelengthRange: [500, 540], attenuationCoeff: 0.03 }, // Blue-Green: low
+  { wavelengthRange: [540, 580], attenuationCoeff: 0.065 }, // Green-Yellow: moderate
+  { wavelengthRange: [580, 620], attenuationCoeff: 0.13 }, // Yellow-Orange: high
+  { wavelengthRange: [620, 660], attenuationCoeff: 0.29 }, // Orange-Red: very high
+  { wavelengthRange: [660, 700], attenuationCoeff: 0.43 }, // Red: extreme
 ];
 
 // Light intensity at depth: I(d) = I(0) * exp(-Kd * d)
@@ -250,7 +254,7 @@ Process pixel data off the main thread to keep UI responsive:
 - **No decorative illustrations** — the lure images ARE the content
 - **Responsive** — works on mobile and desktop identically. The compare slider is a single stacked-canvas component that adapts to any width — no layout changes needed between breakpoints, just sizing.
 
-### Landing Page (_index.tsx)
+### Landing Page (\_index.tsx)
 
 The landing page IS the tool. No separate "app" page. Scroll flow:
 
@@ -280,6 +284,7 @@ This is the centerpiece of the entire app. It must feel premium and buttery smoo
 **Architecture:** Two `<canvas>` elements stacked via absolute positioning inside a relatively positioned container. The top canvas (processed/tuna vision) is clipped using `clip-path: inset(0 0 0 {sliderPosition}px)` or by drawing only the right portion. The bottom canvas (original) is always fully visible. A draggable divider line sits at the clip boundary.
 
 **The divider handle:**
+
 - A thin vertical line (2px, white, 80% opacity) spanning the full height of the image
 - At its center, a circular grab handle (40px diameter, white with subtle backdrop blur and drop shadow)
 - Inside the handle: a left/right arrow icon (◂ ▸) or simple grip lines
@@ -288,6 +293,7 @@ This is the centerpiece of the entire app. It must feel premium and buttery smoo
 - While dragging: handle gets a more prominent glow/ring, the line becomes slightly brighter
 
 **Interaction model:**
+
 - **Mouse:** `pointerdown` on handle or anywhere on the image starts drag. `pointermove` updates position. `pointerup` stops. Use pointer events (not mouse events) for unified mouse/touch/pen support.
 - **Touch:** Same pointer events handle this automatically. Ensure `touch-action: none` on the container to prevent scroll interference during drag.
 - **Keyboard:** When the slider container is focused, left/right arrow keys move the divider by 1% per press. Hold shift for 10% jumps. Add `tabindex="0"` and `role="slider"` with proper `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, `aria-label`.
@@ -295,6 +301,7 @@ This is the centerpiece of the entire app. It must feel premium and buttery smoo
 - **Boundary clamping:** Divider cannot go past 2% or 98% of container width — always leave a sliver of each side visible so the user understands both images exist.
 
 **Labels:**
+
 - Small floating labels at top-left ("Human Vision") and top-right ("Tuna Vision") of the image
 - These should be semi-transparent pill badges (background: rgba(0,0,0,0.6), backdrop-filter: blur(4px))
 - Labels fade out after 3 seconds of no interaction, fade back in when the user touches/hovers the slider
@@ -303,18 +310,21 @@ This is the centerpiece of the entire app. It must feel premium and buttery smoo
 **Initial state:** Divider starts at 50% (center). After first processing completes, animate the divider from 0% → 50% over ~600ms with an ease-out curve. This "reveal" animation serves as a visual tutorial — the user immediately understands they can drag it.
 
 **Processing transition:** When depth changes trigger reprocessing:
+
 - Don't flash or blank the processed canvas
 - Keep the previous processed image visible while the worker processes
 - Once the new ImageData is ready, paint it in a single frame — no visible flicker
 - Optionally add a very subtle shimmer/pulse on the divider line during processing to signal activity
 
 **Responsive sizing:**
+
 - Container is full-width of its parent with a max-width (e.g., 800px) and auto horizontal margins
 - Aspect ratio is locked to the uploaded image's native aspect ratio using `aspect-ratio` CSS property
 - On very tall images (portrait), cap the container height at ~70vh and add subtle letterboxing
 - The canvas elements render at the actual image resolution but the container scales them down via CSS — this keeps the visual crisp on retina displays
 
 **Performance requirements:**
+
 - Divider position updates must be RAF-synced (requestAnimationFrame) — never lag behind the pointer
 - Use `will-change: clip-path` or `will-change: transform` on the clipped canvas for GPU compositing
 - The canvases should be rendered ONCE per image/depth change, not per frame — the slider only changes CSS clip, it doesn't re-render pixels
@@ -324,9 +334,9 @@ This is the centerpiece of the entire app. It must feel premium and buttery smoo
 // compare-slider.tsx — key props interface
 
 interface CompareSliderProps {
-  originalImageData: ImageData | null;   // Human vision (always the raw upload)
-  processedImageData: ImageData | null;  // Tuna vision (from Web Worker)
-  isProcessing: boolean;                 // Show subtle activity indicator
+  originalImageData: ImageData | null; // Human vision (always the raw upload)
+  processedImageData: ImageData | null; // Tuna vision (from Web Worker)
+  isProcessing: boolean; // Show subtle activity indicator
   imageWidth: number;
   imageHeight: number;
 }
@@ -377,11 +387,13 @@ Use color-coded indicators: green checkmarks for positive traits, red X for nega
 ## Image Upload Component (image-upload.tsx)
 
 Support three input methods:
+
 1. **Drag & drop** — drop zone with visual feedback
-2. **File picker** — click to open file dialog, accept image/*
+2. **File picker** — click to open file dialog, accept image/\*
 3. **Clipboard paste** — listen for paste events with image data
 
 Constraints:
+
 - Max file size: 10MB (client-side check)
 - Accepted formats: JPEG, PNG, WebP
 - Resize to max 1200px on longest edge before processing (performance)

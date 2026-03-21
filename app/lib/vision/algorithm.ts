@@ -10,8 +10,6 @@ import { depthTransmittance } from './depth-filter';
  * Govardovskii et al. (2000) visual pigment nomogram template.
  * Returns the relative sensitivity of a visual pigment with peak at lambdaMax
  * to a photon of wavelength lambda.
- *
- * S(λ) = 1 / { exp[A*(a - lambdaMax/λ)] + exp[B*(b - lambdaMax/λ)] + exp[C*(c - lambdaMax/λ)] + D }
  */
 function govardovskiiResponse(lambda: number, lambdaMax: number): number {
   const x = lambdaMax / lambda;
@@ -37,6 +35,110 @@ function isMetallic(h: number, s: number, l: number): boolean {
   return l > 0.65 && s < 0.25;
 }
 
+interface ConeResponse {
+  response: number;
+  weight: number;
+  lambdaMax: number;
+}
+
+/**
+ * Map cone responses to displayable RGB.
+ * Dichromats: blue-dominated output (preserves existing tuna rendering).
+ * Trichromats: broader palette reflecting the LWS cone contribution.
+ */
+function mapConeResponseToRgb(
+  coneResponses: ConeResponse[],
+  perceivedBrightness: number,
+  visionType: 'dichromat' | 'trichromat',
+): [number, number, number] {
+  const sorted = [...coneResponses].sort((a, b) => a.lambdaMax - b.lambdaMax);
+
+  if (visionType === 'dichromat' || sorted.length <= 2) {
+    // Dichromat: exact same coefficients as the original tuna-only path
+    const violetCone = sorted[0];
+    const blueGreenCone = sorted[sorted.length - 1];
+
+    const blueGreenResponse = blueGreenCone.response * blueGreenCone.weight;
+    const violetResponse = violetCone.response * violetCone.weight;
+
+    const blueChannel = Math.round(
+      perceivedBrightness * 255 * 0.9 + blueGreenResponse * 30,
+    );
+    const greenChannel = Math.round(
+      blueGreenResponse * perceivedBrightness * 180,
+    );
+    const redChannel = Math.round(violetResponse * perceivedBrightness * 80);
+
+    return [
+      Math.min(255, redChannel),
+      Math.min(255, greenChannel),
+      Math.min(255, blueChannel),
+    ];
+  }
+
+  // Trichromat: 3 cones sorted [SWS2, RH2, LWS]
+  const swCone = sorted[0]; // shortest wavelength — blue
+  const mwCone = sorted[1]; // mid wavelength — green
+  const lwCone = sorted[2]; // longest wavelength — yellow-green
+
+  const swResponse = swCone.response * swCone.weight;
+  const mwResponse = mwCone.response * mwCone.weight;
+  const lwResponse = lwCone.response * lwCone.weight;
+
+  // LWS cone adds meaningful warm-color perception
+  const blueChannel = Math.round(
+    perceivedBrightness * 0.7 * 255 + swResponse * 60,
+  );
+  const greenChannel = Math.round(
+    perceivedBrightness * 80 + mwResponse * 180 + lwResponse * 40,
+  );
+  const redChannel = Math.round(
+    lwResponse * perceivedBrightness * 160 + mwResponse * 30,
+  );
+
+  return [
+    Math.min(255, redChannel),
+    Math.min(255, greenChannel),
+    Math.min(255, blueChannel),
+  ];
+}
+
+/**
+ * Compute species-specific visibility weights for each color category.
+ * Uses Govardovskii nomogram at representative wavelengths to derive
+ * how sensitive the species is to each color band.
+ */
+function computeVisibilityWeights(species: SpeciesProfile): {
+  blueViolet: number;
+  green: number;
+  redOrange: number;
+  metallic: number;
+  neutral: number;
+} {
+  // Representative wavelengths for each color category
+  const blueVioletWl = 450;
+  const greenWl = 530;
+  const redOrangeWl = 620;
+
+  // Compute max weighted cone response at each wavelength
+  const responseAt = (wl: number) => {
+    let maxResponse = 0;
+    for (const cone of species.cones) {
+      const r = govardovskiiResponse(wl, cone.lambdaMax) * cone.peakSensitivity;
+      maxResponse = Math.max(maxResponse, r);
+    }
+    return maxResponse;
+  };
+
+  return {
+    blueViolet: Math.min(1, responseAt(blueVioletWl)),
+    green: Math.min(1, responseAt(greenWl)),
+    redOrange: Math.min(1, responseAt(redOrangeWl)),
+    metallic: 0.85, // broadband reflector — always high
+    neutral: 0.5, // broadband — moderate
+  };
+}
+
 /**
  * Process a single pixel through the species vision model at a given depth.
  * Returns [r, g, b] output.
@@ -55,7 +157,6 @@ function processPixel(
 
   // Special case: metallic/chrome finishes — reflect across all wavelengths
   if (isMetallic(h, s, l)) {
-    // High-brightness blue-white (fish sees bright flash)
     const brightness = Math.round(l * 220);
     return [brightness, brightness, Math.min(255, brightness + 20)];
   }
@@ -65,7 +166,6 @@ function processPixel(
 
   // For achromatic/neutral pixels (very low saturation), treat as broadband
   if (s < 0.08) {
-    // White/grey reflects all wavelengths — tuna sees it as grey-blue
     const blueTint = Math.round(l * 180);
     const brightness = Math.round(l * 150);
     return [brightness, brightness, blueTint];
@@ -77,21 +177,16 @@ function processPixel(
 
   // Calculate cone responses using Govardovskii nomogram
   let totalWeightedResponse = 0;
-  const coneResponses: {
-    response: number;
-    weight: number;
-    lambdaMax: number;
-  }[] = [];
+  const coneResponses: ConeResponse[] = [];
 
   for (const cone of species.cones) {
     const raw = govardovskiiResponse(dominantWavelength, cone.lambdaMax);
-    const weighted = raw * cone.peakSensitivity;
     coneResponses.push({
       response: raw,
       weight: cone.peakSensitivity,
       lambdaMax: cone.lambdaMax,
     });
-    totalWeightedResponse += weighted;
+    totalWeightedResponse += raw * cone.peakSensitivity;
   }
 
   const maxPossibleResponse = species.cones.reduce(
@@ -103,36 +198,13 @@ function processPixel(
     totalWeightedResponse / maxPossibleResponse,
   );
 
-  // Map cone responses to a displayable blue-dominated color
-  // The 485nm cone response maps to a blue-green channel
-  // The 426nm cone response maps to a violet-blue channel
-  const blueGreenCone =
-    coneResponses.find((c) => c.lambdaMax >= 480) ?? coneResponses[0];
-  const violetCone =
-    coneResponses.find((c) => c.lambdaMax < 450) ??
-    coneResponses[coneResponses.length - 1];
-
-  const blueGreenResponse = blueGreenCone.response * blueGreenCone.weight;
-  const violetResponse = violetCone.response * violetCone.weight;
-
-  // Compute perceived brightness with depth attenuation applied
   const perceivedBrightness = normalizedResponse * attenuatedLightness;
 
-  // Build output color in the fish's perceived space
-  // The output is always blue-dominated; the hue shifts based on relative cone responses
-  const blueChannel = Math.round(
-    perceivedBrightness * 255 * 0.9 + blueGreenResponse * 30,
+  return mapConeResponseToRgb(
+    coneResponses,
+    perceivedBrightness,
+    species.visionType,
   );
-  const greenChannel = Math.round(
-    blueGreenResponse * perceivedBrightness * 180,
-  );
-  const redChannel = Math.round(violetResponse * perceivedBrightness * 80);
-
-  return [
-    Math.min(255, redChannel),
-    Math.min(255, greenChannel),
-    Math.min(255, blueChannel),
-  ];
 }
 
 /**
@@ -235,21 +307,22 @@ export function processImageData(
       ? Math.round((totalProcessedBrightness / totalOriginalBrightness) * 100)
       : 0;
 
-  // Visibility score: weighted by what tuna can actually see
-  // Blue/violet counts fully, green partially, red/orange very little
-  // Metallic is good (flash), neutral is moderate
+  // Species-adaptive visibility scoring
+  const weights = computeVisibilityWeights(species);
   const visibilityScore = Math.min(
     100,
     Math.round(
-      pctBlueViolet * 0.9 +
-        pctGreen * 0.4 +
-        pctRedOrange * 0.05 +
-        pctMetallic * 0.85 +
-        pctNeutral * 0.5,
+      pctBlueViolet * weights.blueViolet +
+        pctGreen * weights.green +
+        pctRedOrange * weights.redOrange +
+        pctMetallic * weights.metallic +
+        pctNeutral * weights.neutral,
     ),
   );
 
   const recommendations = buildRecommendations(
+    species,
+    weights,
     pctBlueViolet,
     pctGreen,
     pctRedOrange,
@@ -278,6 +351,8 @@ export function processImageData(
 }
 
 function buildRecommendations(
+  species: SpeciesProfile,
+  weights: ReturnType<typeof computeVisibilityWeights>,
   pctBlue: number,
   pctGreen: number,
   pctRedOrange: number,
@@ -287,6 +362,8 @@ function buildRecommendations(
   visibilityScore: number,
 ): string[] {
   const recs: string[] = [];
+  const canSeeRed = weights.redOrange > 0.2;
+  const canSeeGreen = weights.green > 0.5;
 
   if (pctBlue > 20) {
     recs.push(
@@ -299,17 +376,35 @@ function buildRecommendations(
     );
   }
   if (pctGreen > 20) {
-    recs.push(
-      'Green tones partially visible — some contrast retained at depth',
-    );
+    if (canSeeGreen) {
+      recs.push(
+        `Green tones well within ${species.name} sensitivity — strong contrast`,
+      );
+    } else {
+      recs.push(
+        'Green tones partially visible — some contrast retained at depth',
+      );
+    }
   }
   if (pctRedOrange > 20) {
-    const depthNote = depth > 10 ? `below ${depth}m` : 'below 10m';
-    recs.push(
-      `Red/orange elements appear black ${depthNote} — effectively invisible`,
-    );
+    if (canSeeRed) {
+      if (depth > 15) {
+        recs.push(
+          `Red/orange visible to ${species.name} at shallow depths but attenuated by water below ~15m`,
+        );
+      } else {
+        recs.push(
+          `Red/orange visible to ${species.name} — LWS cone sensitivity at shallow depth`,
+        );
+      }
+    } else {
+      const depthNote = depth > 10 ? `below ${depth}m` : 'below 10m';
+      recs.push(
+        `Red/orange elements appear black ${depthNote} — effectively invisible`,
+      );
+    }
   }
-  if (pctRedOrange > 40) {
+  if (pctRedOrange > 40 && !canSeeRed) {
     recs.push(
       'Heavy red/orange pigment — consider a blue or silver alternative for depth',
     );
@@ -324,15 +419,17 @@ function buildRecommendations(
   }
   if (visibilityScore < 30) {
     recs.push(
-      'Low overall visibility — this color scheme is poorly matched to tuna vision',
+      `Low overall visibility — this color scheme is poorly matched to ${species.name} vision`,
     );
   } else if (visibilityScore > 70) {
     recs.push(
-      'High visibility score — this lure is well-matched to tuna visual sensitivity',
+      `High visibility score — this lure is well-matched to ${species.name} visual sensitivity`,
     );
   }
   if (pctNeutral > 30) {
-    recs.push('Neutral/white areas visible as grey-blue through tuna eyes');
+    recs.push(
+      `Neutral/white areas visible as grey-blue through ${species.name} eyes`,
+    );
   }
 
   return recs;

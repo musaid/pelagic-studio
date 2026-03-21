@@ -50,7 +50,11 @@ export function ContrastAnalysis({
       r.includes('visible') ||
       r.includes('High visibility') ||
       r.includes('Metallic') ||
-      r.includes('partially'),
+      r.includes('partially') ||
+      r.includes('well within') ||
+      r.includes('well-matched') ||
+      r.includes('strong contrast') ||
+      r.includes('LWS cone'),
   );
 
   const negativeRecs = recommendations.filter(
@@ -62,7 +66,9 @@ export function ContrastAnalysis({
       r.includes('diminishes') ||
       r.includes('Low overall') ||
       r.includes('only blue') ||
-      r.includes('silhouette'),
+      r.includes('silhouette') ||
+      r.includes('attenuated') ||
+      r.includes('poorly matched'),
   );
 
   const scoreLabel =
@@ -202,7 +208,9 @@ export function ContrastAnalysis({
         than shown here.
       </p>
 
-      <p className="text-xs text-slate-700">{species.citation}</p>
+      <p className="text-xs text-slate-700">
+        {species.citations.map((c) => c.short).join('; ')}
+      </p>
     </div>
   );
 }

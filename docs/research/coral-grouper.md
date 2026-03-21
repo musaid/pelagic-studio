@@ -1,23 +1,23 @@
-# Coral Grouper — *Plectropomus leopardus*
+# Coral Grouper — _Plectropomus leopardus_
 
 ## Summary
 
-| | |
-|---|---|
-| Vision type | Trichromat (predicted adult) |
-| Evidence level | Genomic inference (from *Epinephelus* ERG + genomics) |
-| Habitat | Reef (ambush predator, low-light structures) |
+|                |                                                       |
+| -------------- | ----------------------------------------------------- |
+| Vision type    | Trichromat (predicted adult)                          |
+| Evidence level | Genomic inference (from _Epinephelus_ ERG + genomics) |
+| Habitat        | Reef (ambush predator, low-light structures)          |
 
 ## Photoreceptor Data
 
-| Photoreceptor | Opsin | λmax (nm) | Type | Sensitivity Weight | Basis |
-|---|---|---|---|---|---|
-| Single cone | SWS2 | **440** | Single cone | 0.30 (tertiary) | Epinephelus gene expression |
-| Double cone member 1 | RH2 | **515** | Double cone | 0.65 (dominant) | E. bruneus ERG |
-| Double cone member 2 | LWS | **555** | Double cone | 0.55 (secondary) | E. bruneus ERG peak |
-| Rod | RH1 | **500** | Rod | — | E. bruneus ERG scotopic peak |
+| Photoreceptor        | Opsin | λmax (nm) | Type        | Sensitivity Weight | Basis                        |
+| -------------------- | ----- | --------- | ----------- | ------------------ | ---------------------------- |
+| Single cone          | SWS2  | **440**   | Single cone | 0.30 (tertiary)    | Epinephelus gene expression  |
+| Double cone member 1 | RH2   | **515**   | Double cone | 0.65 (dominant)    | E. bruneus ERG               |
+| Double cone member 2 | LWS   | **555**   | Double cone | 0.55 (secondary)   | E. bruneus ERG peak          |
+| Rod                  | RH1   | **500**   | Rod         | —                  | E. bruneus ERG scotopic peak |
 
-**These values are inferred.** No published MSP study has measured photoreceptor spectral sensitivities in any sport fishing grouper species (*Plectropomus*, *Epinephelus itajara*, *Mycteroperca*, etc.). Data is derived from ERG measurements and opsin gene expression in Indo-Pacific *Epinephelus* species.
+**These values are inferred.** No published MSP study has measured photoreceptor spectral sensitivities in any sport fishing grouper species (_Plectropomus_, _Epinephelus itajara_, _Mycteroperca_, etc.). Data is derived from ERG measurements and opsin gene expression in Indo-Pacific _Epinephelus_ species.
 
 ## Evidence
 
@@ -25,41 +25,47 @@
 
 This is the weakest evidence base among our four species profiles. The inference chain relies on ERG (electroretinography — a whole-eye measurement that reflects combined photoreceptor responses) and opsin gene expression studies in related grouper species.
 
-### Primary source — *Epinephelus bruneus* (longtooth grouper) ERG
+### Primary source — _Epinephelus bruneus_ (longtooth grouper) ERG
 
-Kim et al. (2015) performed ERG measurements on juvenile *E. bruneus*:
+Kim et al. (2015) performed ERG measurements on juvenile _E. bruneus_:
 
 **Photopic ERG (cone-mediated):**
+
 - Broad sensitivity range: 350-600 nm
 - **Peak at approximately 560 nm** — indicating strong LWS contribution
 - **UV peak at ~360 nm** — attributed to SWS1 opsin expression (juveniles only)
 
 **Scotopic ERG (rod-mediated):**
+
 - Peak at approximately **500 nm** (RH1 rhodopsin)
 
-**Opsin gene complement** (Kim et al. 2015, *Fisheries Science*):
+**Opsin gene complement** (Kim et al. 2015, _Fisheries Science_):
+
 - 10 opsin genes identified: RH1, five RH2 genes (RH2A1-1, RH2A1-2, RH2A2, and two additional copies), SWS1, two SWS2 genes (SWS2A1, SWS2A2), and LWS
 - **SWS1 expression decreases during development** — adults likely lose UV sensitivity
 - **SWS2 expression increases during development** — replaces UV cones
 
-### Supporting — *Epinephelus akaara* (red-spotted grouper) development
+### Supporting — _Epinephelus akaara_ (red-spotted grouper) development
 
 Kim et al. (2019) confirmed developmental opsin switching:
+
 - Four opsins expressed: RH1, RH2 (MWS), SWS2, LWS
 - SWS2 expression increases until 10 days after hatching
 - RH2 peaks at 21 days; RH1 highest at 50 days
 - LWS detected from 3 days but decreases thereafter
 
-### Supporting — *Epinephelus malabaricus* (malabar grouper) transcriptomics
+### Supporting — _Epinephelus malabaricus_ (malabar grouper) transcriptomics
 
 The eLife (2024) transcriptomic study found eight visual cone opsin genes:
+
 - SWS1 (UV), SWS2Aa, SWS2Ab, SWS2B (three SWS2 paralogs), RH2A, RH2B, RH2C (three RH2 paralogs), LWS
 - Plus RH1 (rod)
 - This confirms the genetic capacity for broad spectral sensitivity
 
 ### Supporting — Cortesi et al. (2020) reef fish survey
 
-"Visual system diversity in coral reef fishes" (*Seminars in Cell & Developmental Biology*) establishes that:
+"Visual system diversity in coral reef fishes" (_Seminars in Cell & Developmental Biology_) establishes that:
+
 - Most marine reef fish are trichromatic with three spectral sensitivities
 - Epinephelidae fall within this general pattern
 - Multiple RH2 paralogs are common in reef fish and enable fine-tuning of green sensitivity
@@ -73,14 +79,15 @@ The eLife (2024) transcriptomic study found eight visual cone opsin genes:
 
 ## Ecological Context
 
-Coral grouper (*Plectropomus leopardus*) are ambush predators that inhabit coral reef structures, often lurking in caves, overhangs, and crevices. Their visual ecology differs significantly from the pelagic species:
+Coral grouper (_Plectropomus leopardus_) are ambush predators that inhabit coral reef structures, often lurking in caves, overhangs, and crevices. Their visual ecology differs significantly from the pelagic species:
 
 - **Low-light adapted:** Groupers hunt in reef shadows and at dawn/dusk. High rod density (RH1 ~500 nm) provides scotopic sensitivity in dim conditions.
-- **Multiple RH2 paralogs** (up to 5 copies in *E. bruneus*) suggest fine-tuning of green sensitivity — advantageous for detecting prey contrast against the complex reef background where green light penetrates into structure.
+- **Multiple RH2 paralogs** (up to 5 copies in _E. bruneus_) suggest fine-tuning of green sensitivity — advantageous for detecting prey contrast against the complex reef background where green light penetrates into structure.
 - **LWS expression** supports detection of warm-colored prey (small reef fish, crustaceans) against the blue-green ambient reef light.
 - **Ontogenetic visual shift:** Juveniles have UV sensitivity (SWS1) that adults lose. Adult groupers of sport-fishing size operate with a SWS2 + RH2 + LWS trichromatic system.
 
 For lure design:
+
 - Green and chartreuse are highly visible — within the dominant RH2 sensitivity
 - Red and orange are more visible to grouper than to tuna or GT, especially at shallow depths
 - Blue and metallic remain effective
@@ -89,15 +96,15 @@ For lure design:
 
 ## Citations
 
-1. **Kim, S.J. et al.** (2015). "Electroretinographic evaluation and SWS1 opsin gene expression in the vision of juvenile longtooth grouper (*Epinephelus bruneus*)." *Marine and Freshwater Behaviour and Physiology*, 48(6).
+1. **Kim, S.J. et al.** (2015). "Electroretinographic evaluation and SWS1 opsin gene expression in the vision of juvenile longtooth grouper (_Epinephelus bruneus_)." _Marine and Freshwater Behaviour and Physiology_, 48(6).
 
-2. **Kim, S.J. et al.** (2015). "Sequence analysis and expression patterns of opsin genes in the longtooth grouper *Epinephelus bruneus*." *Fisheries Science*.
+2. **Kim, S.J. et al.** (2015). "Sequence analysis and expression patterns of opsin genes in the longtooth grouper _Epinephelus bruneus_." _Fisheries Science_.
 
-3. **Kim, S.J. et al.** (2019). "Retinal development and opsin gene expression during juvenile development in red spotted grouper (*Epinephelus akaara*)." *Development & Reproduction*, 23(2), 171. PMC6635621.
+3. **Kim, S.J. et al.** (2019). "Retinal development and opsin gene expression during juvenile development in red spotted grouper (_Epinephelus akaara_)." _Development & Reproduction_, 23(2), 171. PMC6635621.
 
-4. **eLife** (2024). "The transcriptional landscape underlying larval development and metamorphosis in the Malabar grouper (*Epinephelus malabaricus*)."
+4. **eLife** (2024). "The transcriptional landscape underlying larval development and metamorphosis in the Malabar grouper (_Epinephelus malabaricus_)."
 
-5. **Cortesi, F. et al.** (2020). "Visual system diversity in coral reef fishes." *Seminars in Cell & Developmental Biology*, 106, 31-42.
+5. **Cortesi, F. et al.** (2020). "Visual system diversity in coral reef fishes." _Seminars in Cell & Developmental Biology_, 106, 31-42.
 
 6. **Schweikert, L.E. & Caves, E.M.** (2018). "Variation in rod spectral sensitivity of fishes is best predicted by habitat and depth."
 
@@ -105,8 +112,8 @@ For lure design:
 
 This profile has the **highest uncertainty** of our four species:
 
-- **No MSP data** exists for any sport fishing grouper (*Plectropomus leopardus*, *Epinephelus itajara*, *Mycteroperca bonaci*, etc.)
+- **No MSP data** exists for any sport fishing grouper (_Plectropomus leopardus_, _Epinephelus itajara_, _Mycteroperca bonaci_, etc.)
 - **ERG data** (Kim et al. 2015) is from juveniles, not adults. The ontogenetic shift means adult values may differ.
 - **ERG measures whole-eye response**, not individual photoreceptor peaks. The ~560 nm photopic peak is the combined output of all cone types, not a direct λmax measurement.
-- **Cross-genus inference:** *Plectropomus* is in a different genus within Epinephelinae than the *Epinephelus* species studied. While the subfamily is expected to share a similar opsin complement, the specific spectral tuning may vary.
-- **Lens transmission data** is not available for *Plectropomus leopardus*. If the lens blocks UV, the SWS1 gene would be non-functional even if expressed.
+- **Cross-genus inference:** _Plectropomus_ is in a different genus within Epinephelinae than the _Epinephelus_ species studied. While the subfamily is expected to share a similar opsin complement, the specific spectral tuning may vary.
+- **Lens transmission data** is not available for _Plectropomus leopardus_. If the lens blocks UV, the SWS1 gene would be non-functional even if expressed.

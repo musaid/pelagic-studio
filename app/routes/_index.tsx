@@ -11,6 +11,7 @@ import {
 } from '~/lib/utils/image';
 import { drawImageDataToCanvas } from '~/lib/utils/canvas';
 import { yellowfinTuna } from '~/lib/vision/species-profiles';
+import { SpeciesSelector } from '~/components/species-selector';
 import type {
   SpeciesProfile,
   ContrastStats,
@@ -86,7 +87,8 @@ export default function Index() {
     useState<ImageData | null>(null);
   const [stats, setStats] = useState<ContrastStats | null>(null);
   const [depth, setDepth] = useState(0);
-  const [selectedSpecies] = useState<SpeciesProfile>(yellowfinTuna);
+  const [selectedSpecies, setSelectedSpecies] =
+    useState<SpeciesProfile>(yellowfinTuna);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [, startTransition] = useTransition();
@@ -233,6 +235,16 @@ export default function Index() {
     setProcessingProgress(0);
     setHasRevealAnimated(false);
   }, []);
+
+  const handleSpeciesChange = useCallback(
+    (species: SpeciesProfile) => {
+      setSelectedSpecies(species);
+      if (loadedImage) {
+        triggerProcessing(loadedImage.imageData, species, depth);
+      }
+    },
+    [loadedImage, depth, triggerProcessing],
+  );
 
   // ── File handling ──────────────────────────────────────────────────────────
   const handleFile = useCallback(
@@ -585,7 +597,7 @@ export default function Index() {
                 onKeyDown={handleKeyDown}
                 tabIndex={0}
                 role="slider"
-                aria-label="Compare human vision and tuna vision"
+                aria-label={`Compare human vision and ${selectedSpecies.name} vision`}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-valuenow={Math.round(sliderPos * 100)}
@@ -655,7 +667,7 @@ export default function Index() {
                     className="text-[10px] tracking-widest text-white uppercase"
                     style={{ fontFamily: "'Inter', sans-serif" }}
                   >
-                    Tuna Vision ({depth}m)
+                    {selectedSpecies.name} Vision ({depth}m)
                   </span>
                 </div>
 
@@ -768,6 +780,15 @@ export default function Index() {
                     </span>
                   </button>
                 </div>
+              </div>
+
+              {/* ── Species selector ──────────────────────────────────────── */}
+              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 md:p-8">
+                <SpeciesSelector
+                  selected={selectedSpecies}
+                  onChange={handleSpeciesChange}
+                  disabled={isProcessing}
+                />
               </div>
 
               {/* ── Stats section ──────────────────────────────────────────── */}

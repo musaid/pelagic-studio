@@ -14,11 +14,11 @@ Live at [pelagicstudio.com](https://pelagicstudio.com)
 
 Yellowfin tuna (_Thunnus albacares_) are **photopic dichromats** — they have two cone pigment types for daylight color vision, compared to three in humans.
 
-| Photoreceptor | λmax | Role |
-|---|---|---|
-| Twin cones | 485 nm (blue-green) | Dominant — brightness and motion |
-| Single cones | 426 nm (violet) | Secondary — short-wavelength discrimination |
-| Rods | 483 nm | Scotopic / low-light |
+| Photoreceptor | λmax                | Role                                        |
+| ------------- | ------------------- | ------------------------------------------- |
+| Twin cones    | 485 nm (blue-green) | Dominant — brightness and motion            |
+| Single cones  | 426 nm (violet)     | Secondary — short-wavelength discrimination |
+| Rods          | 483 nm              | Scotopic / low-light                        |
 
 There are no long-wavelength cones. Red, orange, and most yellow are **functionally invisible** to tuna. Peak sensitivity sits in the 420–500 nm range (violet through blue-green).
 
@@ -35,6 +35,7 @@ S(λ) = 1 / { exp[A·(a − λmax/λ)] + exp[B·(b − λmax/λ)] + exp[C·(c �
 Where `A=69.7`, `B=28`, `C=−14.9`, `D=0.674`, and `a` is a function of λmax. This gives a smooth bell curve of photoreceptor sensitivity centered on each cone's peak wavelength.
 
 **Per-pixel pipeline:**
+
 1. Extract RGB → convert to HSL
 2. Map hue to approximate dominant wavelength (380–700 nm)
 3. Apply Beer-Lambert depth attenuation to incoming light intensity
@@ -48,15 +49,15 @@ Where `A=69.7`, `B=28`, `C=−14.9`, `D=0.674`, and `a` is a function of λmax. 
 
 Water selectively absorbs light by wavelength. The model uses Jerlov Type I open-ocean coefficients (Beer-Lambert law: `I(d) = I₀ × e^(−Kd × d)`):
 
-| Wavelength band | Kd (per metre) | Effect at 50m |
-|---|---|---|
-| 420–460 nm (violet-blue) | 0.025 | ~29% transmitted |
-| 460–500 nm (blue) | 0.020 | ~37% transmitted |
-| 500–540 nm (blue-green) | 0.030 | ~22% transmitted |
-| 540–580 nm (green-yellow) | 0.065 | ~4% transmitted |
-| 580–620 nm (yellow-orange) | 0.130 | ~0.1% transmitted |
-| 620–660 nm (orange-red) | 0.290 | effectively zero |
-| 660–700 nm (red) | 0.430 | effectively zero |
+| Wavelength band            | Kd (per metre) | Effect at 50m     |
+| -------------------------- | -------------- | ----------------- |
+| 420–460 nm (violet-blue)   | 0.025          | ~29% transmitted  |
+| 460–500 nm (blue)          | 0.020          | ~37% transmitted  |
+| 500–540 nm (blue-green)    | 0.030          | ~22% transmitted  |
+| 540–580 nm (green-yellow)  | 0.065          | ~4% transmitted   |
+| 580–620 nm (yellow-orange) | 0.130          | ~0.1% transmitted |
+| 620–660 nm (orange-red)    | 0.290          | effectively zero  |
+| 660–700 nm (red)           | 0.430          | effectively zero  |
 
 _Source: Jerlov (1976)_
 
@@ -94,6 +95,7 @@ workers/
 ```
 
 **Key design decisions:**
+
 - All image processing runs in a **Web Worker** — the main thread never blocks during pixel computation
 - The compare slider works via CSS `clip-path` only — canvases are painted once per image/depth change, not per frame
 - SSR via React Router v7 on Cloudflare Workers — the landing page is server-rendered for SEO; the tool is fully client-side
@@ -102,14 +104,14 @@ workers/
 
 ## Stack
 
-| | |
-|---|---|
-| Framework | React Router v7 (SSR, framework mode) |
-| Runtime | Cloudflare Workers |
-| UI | React 19, Tailwind CSS v4 |
-| Build | Vite 7 + `@cloudflare/vite-plugin` |
-| Language | TypeScript 5.9 (strict) |
-| Package manager | pnpm |
+|                 |                                       |
+| --------------- | ------------------------------------- |
+| Framework       | React Router v7 (SSR, framework mode) |
+| Runtime         | Cloudflare Workers                    |
+| UI              | React 19, Tailwind CSS v4             |
+| Build           | Vite 7 + `@cloudflare/vite-plugin`    |
+| Language        | TypeScript 5.9 (strict)               |
+| Package manager | pnpm                                  |
 
 ---
 
